@@ -1,0 +1,91 @@
+package de.godcipher.antiac.detection.checks;
+
+import de.godcipher.antiac.config.ConfigurationOption;
+import de.godcipher.antiac.detection.Check;
+import de.godcipher.antiac.value.CPS;
+import de.godcipher.antiac.value.ClickTracker;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import lombok.extern.slf4j.Slf4j;
+import org.bukkit.Location;
+import org.bukkit.entity.Player;
+
+/** AfkClickingCheck checks for players that are clicking while being AFK. */
+@Slf4j
+public class AfkClickingCheck extends Check {
+
+  private final Map<UUID, List<Location>> playerLocations = new HashMap<>();
+  private final Map<UUID, Long> afkMap = new HashMap<>(); // TODO: memory leaking
+
+  private int afkAfterSeconds = 10;
+
+  public AfkClickingCheck(ClickTracker clickTracker) {
+    super(clickTracker);
+  }
+
+  @Override
+  protected void onLoad() {
+    setupDefaults();
+
+    afkAfterSeconds = (Integer) getConfiguration().getConfigOption("afk-after-seconds").getValue();
+  }
+
+  @Override
+  protected void onUnload() {}
+
+  @Override
+  public boolean check(Player player) {
+    List<Location> locations = playerLocations.get(player.getUniqueId());
+
+    if (locations == null) {
+      playerLocations.put(player.getUniqueId(), new ArrayList<>(List.of(player.getLocation())));
+      return false;
+    }
+
+    if (locations.size() < afkAfterSeconds) {
+      locations.add(player.getLocation());
+      return false;
+    }
+
+    playerLocations.remove(player.getUniqueId());
+
+    if (isAfkClicking(locations)) {
+      afkMap.put(player.getUniqueId(), System.currentTimeMillis());
+    } else {
+      afkMap.remove(player.getUniqueId());
+    }
+
+    return isAfkClicking(locations) && isClicking(player, afkAfterSeconds);
+  }
+
+  private boolean isAfkClicking(List<Location> locations) {
+    Location firstLocation = locations.getFirst();
+    return locations.stream().allMatch(location -> location.equals(firstLocation));
+  }
+
+  private boolean isClicking(Player player, int span) {
+    List<CPS> cpsList = clickTracker.getCPSList(player.getUniqueId());
+    List<CPS> cpsToProcess = trimList(cpsList, span);
+
+    if (cpsToProcess.size() < span) {
+      return false;
+    }
+
+    return cpsToProcess.stream()
+        .anyMatch(
+            cps ->
+                cps.getLastClick().getTime() > afkMap.get(player.getUniqueId())
+                    && !cps.isEmpty()
+                    && cps.getCPS() > 0);
+  }
+
+  private void setupDefaults() {
+    getConfiguration()
+        .addConfigOption(
+            "afk-after-seconds",
+            new ConfigurationOption<>(10, "Number of seconds before a player is considered AFK"));
+  }
+}

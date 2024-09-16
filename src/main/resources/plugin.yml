@@ -1,0 +1,4 @@
+name: AntiAC
+version: ${project.version}
+main: de.godcipher.antiac.AntiAC
+api-version: '1.21'
