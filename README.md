@@ -1,2 +1,2 @@
-![pimped_image](https://github.com/user-attachments/assets/739d1270-6358-43c0-98df-f12d1903dde7)
 # Anti-Autoclicker V3
+This is the successor to [AntiAC](https://github.com/GodCipher/Anti-AutoClicker). Rebuilt from the ground up, AntiAC v3 is set to shine once again in the near future. Its arsenal has been expanded and will soon be deployed in the fight against autoclickers. Stay tuned!
