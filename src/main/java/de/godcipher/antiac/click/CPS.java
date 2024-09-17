@@ -1,4 +1,4 @@
-package de.godcipher.antiac.value;
+package de.godcipher.antiac.click;
 
 import java.util.ArrayList;
 import java.util.Comparator;

@@ -2,8 +2,8 @@ package de.godcipher.antiac.detection.checks;
 
 import de.godcipher.antiac.config.ConfigurationOption;
 import de.godcipher.antiac.detection.Check;
-import de.godcipher.antiac.value.CPS;
-import de.godcipher.antiac.value.ClickTracker;
+import de.godcipher.antiac.click.CPS;
+import de.godcipher.antiac.click.ClickTracker;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.bukkit.entity.Player;

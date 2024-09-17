@@ -1,6 +1,6 @@
 package de.godcipher.antiac.listener.bukkit;
 
-import de.godcipher.antiac.value.ClickTracker;
+import de.godcipher.antiac.click.ClickTracker;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

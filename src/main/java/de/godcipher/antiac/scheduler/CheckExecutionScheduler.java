@@ -2,8 +2,8 @@ package de.godcipher.antiac.scheduler;
 
 import de.godcipher.antiac.detection.CheckRegistry;
 import de.godcipher.antiac.detection.reliability.TPSChecker;
-import de.godcipher.antiac.value.CPS;
-import de.godcipher.antiac.value.ClickTracker;
+import de.godcipher.antiac.click.CPS;
+import de.godcipher.antiac.click.ClickTracker;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

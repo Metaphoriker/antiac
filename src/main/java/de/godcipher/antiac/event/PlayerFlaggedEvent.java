@@ -1,7 +1,7 @@
 package de.godcipher.antiac.event;
 
 import de.godcipher.antiac.detection.Check;
-import de.godcipher.antiac.value.CPS;
+import de.godcipher.antiac.click.CPS;
 import java.util.List;
 
 import lombok.EqualsAndHashCode;
