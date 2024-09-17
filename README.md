@@ -1,2 +1,2 @@
-![image](https://github.com/user-attachments/assets/7bbcc0bd-40bb-4f6b-aaed-5eb9ee4b1e5e)
-# Anti-Autoclicker V3.0
+![pimped_image](https://github.com/user-attachments/assets/739d1270-6358-43c0-98df-f12d1903dde7)
+# Anti-Autoclicker V3
