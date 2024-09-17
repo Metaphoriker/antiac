@@ -1,9 +1,9 @@
-package de.godcipher.antiac.scheduler;
+package de.godcipher.antiac.tasks;
 
-import de.godcipher.antiac.detection.CheckRegistry;
-import de.godcipher.antiac.detection.reliability.TPSChecker;
 import de.godcipher.antiac.click.CPS;
 import de.godcipher.antiac.click.ClickTracker;
+import de.godcipher.antiac.detection.CheckRegistry;
+import de.godcipher.antiac.detection.reliability.TPSChecker;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,7 +11,7 @@ import org.bukkit.Bukkit;
 
 @RequiredArgsConstructor
 @Slf4j
-public class CheckExecutionScheduler implements Runnable {
+public class CheckExecutionTask implements Runnable {
 
   private final ClickTracker clickTracker;
   private final CheckRegistry checkRegistry;

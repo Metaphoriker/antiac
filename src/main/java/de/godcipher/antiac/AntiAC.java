@@ -17,11 +17,12 @@ import de.godcipher.antiac.detection.checks.ClickLimitCheck;
 import de.godcipher.antiac.detection.checks.DoubleClickCheck;
 import de.godcipher.antiac.detection.checks.MomentumCheck;
 import de.godcipher.antiac.detection.reliability.TPSChecker;
+import de.godcipher.antiac.detection.violation.ViolationTracker;
 import de.godcipher.antiac.listener.bukkit.PlayerFlaggedListener;
 import de.godcipher.antiac.listener.bukkit.PlayerQuitListener;
 import de.godcipher.antiac.listener.protocol.PlayerDiggingPacketListener;
 import de.godcipher.antiac.listener.protocol.PlayerInteractWithEntityPacketListener;
-import de.godcipher.antiac.scheduler.CheckExecutionScheduler;
+import de.godcipher.antiac.tasks.CheckExecutionTask;
 import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder;
 import java.util.Arrays;
 import java.util.List;
@@ -41,6 +42,7 @@ public final class AntiAC extends JavaPlugin {
 
   @Getter private final CheckRegistry checkRegistry = new CheckRegistry();
   @Getter private final ClickTracker clickTracker = new ClickTracker(configuration);
+  @Getter private final ViolationTracker violationTracker = new ViolationTracker();
 
   @Override
   public void onLoad() {
@@ -131,7 +133,7 @@ public final class AntiAC extends JavaPlugin {
     getServer()
         .getScheduler()
         .runTaskTimerAsynchronously(
-            this, new CheckExecutionScheduler(clickTracker, checkRegistry, tpsChecker), 0, 20);
+            this, new CheckExecutionTask(clickTracker, checkRegistry, tpsChecker), 0, 20);
   }
 
   private void registerChecks() {
