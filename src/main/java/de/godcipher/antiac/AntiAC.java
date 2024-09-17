@@ -7,6 +7,7 @@ import com.github.retrooper.packetevents.util.TimeStampMode;
 import de.godcipher.antiac.bstats.BStatsHandler;
 import de.godcipher.antiac.click.ClickTracker;
 import de.godcipher.antiac.click.ClickType;
+import de.godcipher.antiac.commands.AntiACCommand;
 import de.godcipher.antiac.config.Configuration;
 import de.godcipher.antiac.config.ConfigurationOption;
 import de.godcipher.antiac.detection.CheckRegistry;
@@ -27,6 +28,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 @Slf4j
@@ -55,6 +57,7 @@ public final class AntiAC extends JavaPlugin {
     startTPSChecker();
     setupPacketEvents();
     registerChecks();
+    registerCommands();
     registerBukkitListener();
     registerPacketListener();
     runCheckExecutionScheduler();
@@ -63,6 +66,10 @@ public final class AntiAC extends JavaPlugin {
 
   @Override
   public void onDisable() {}
+
+  private void registerCommands() {
+    Bukkit.getPluginCommand("antiac").setExecutor(new AntiACCommand(clickTracker));
+  }
 
   private void loadConfig() {
     getConfig().options().copyDefaults(true);

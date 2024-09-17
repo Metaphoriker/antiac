@@ -2,3 +2,8 @@ name: AntiAC
 version: ${project.version}
 main: de.godcipher.antiac.AntiAC
 api-version: '1.13' # support as many versions as possible
+
+commands:
+  antiac:
+    description: Main command for AntiAC
+    usage: /antiac <subcommand>

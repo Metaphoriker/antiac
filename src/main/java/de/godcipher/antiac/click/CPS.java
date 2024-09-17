@@ -32,4 +32,9 @@ public class CPS {
   public List<Click> getClicks() {
     return new ArrayList<>(clickSet);
   }
+
+  @Override
+  public String toString() {
+    return String.valueOf(getCPS());
+  }
 }
