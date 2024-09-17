@@ -5,6 +5,8 @@ import com.github.retrooper.packetevents.event.EventManager;
 import com.github.retrooper.packetevents.event.PacketListenerPriority;
 import com.github.retrooper.packetevents.util.TimeStampMode;
 import de.godcipher.antiac.bstats.BStatsHandler;
+import de.godcipher.antiac.click.ClickTracker;
+import de.godcipher.antiac.click.ClickType;
 import de.godcipher.antiac.config.Configuration;
 import de.godcipher.antiac.config.ConfigurationOption;
 import de.godcipher.antiac.detection.CheckRegistry;
@@ -19,8 +21,6 @@ import de.godcipher.antiac.listener.bukkit.PlayerQuitListener;
 import de.godcipher.antiac.listener.protocol.PlayerDiggingPacketListener;
 import de.godcipher.antiac.listener.protocol.PlayerInteractWithEntityPacketListener;
 import de.godcipher.antiac.scheduler.CheckExecutionScheduler;
-import de.godcipher.antiac.click.ClickTracker;
-import de.godcipher.antiac.click.ClickType;
 import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder;
 import java.util.Arrays;
 import java.util.List;
@@ -102,9 +102,6 @@ public final class AntiAC extends JavaPlugin {
         "max-violations",
         new ConfigurationOption<>(
             20, "Maximum amount of violations until the player gets flagged"));
-    configuration.addConfigOption(
-        "clear-violations-after",
-        new ConfigurationOption<>(5, "Clear violations of a player after x minutes"));
     configuration.addConfigOption(
         "bedrock-players",
         new ConfigurationOption<>(false, "Whether the server allows bedrock players"));
