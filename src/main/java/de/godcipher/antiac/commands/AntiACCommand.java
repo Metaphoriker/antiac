@@ -65,6 +65,7 @@ public class AntiACCommand implements TabExecutor {
       playerChecks.put(player.getUniqueId(), target.getUniqueId());
       player.sendMessage("You are now checking " + target.getName() + ".");
 
+      // TODO: per player?
       new BukkitRunnable() {
 
         int maxCPS;
