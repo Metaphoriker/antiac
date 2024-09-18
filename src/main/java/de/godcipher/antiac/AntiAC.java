@@ -159,7 +159,6 @@ public final class AntiAC extends JavaPlugin {
     checkRegistry.registerCheck(new AfkClickingCheck(clickTracker));
     checkRegistry.registerCheck(new ClickPatternConsistencyCheck(clickTracker));
     checkRegistry.registerCheck(new ClickLimitCheck(clickTracker));
-    // checkRegistry.registerCheck(new CPSSpanCheck(clickTracker));
     checkRegistry.registerCheck(new DoubleClickCheck(clickTracker));
     checkRegistry.registerCheck(new MomentumCheck(clickTracker));
     checkRegistry.registerCheck(new ScaledCPSCheck(clickTracker));
