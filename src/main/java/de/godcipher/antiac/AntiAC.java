@@ -186,7 +186,9 @@ public final class AntiAC extends JavaPlugin {
   }
 
   private void registerBukkitListener() {
-    getServer().getPluginManager().registerEvents(new PlayerQuitListener(clickTracker), this);
+    getServer()
+        .getPluginManager()
+        .registerEvents(new PlayerQuitListener(clickTracker, checkRegistry), this);
   }
 
   private void setupPacketEvents() {
