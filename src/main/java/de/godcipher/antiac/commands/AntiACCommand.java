@@ -95,6 +95,11 @@ public class AntiACCommand implements TabExecutor {
       public void run() {
         if (playerChecks.containsKey(player.getUniqueId())) {
           CPS cps = clickTracker.getLatestCPS(target.getUniqueId());
+          CPS previousCPS = getPreviousCPS(target.getUniqueId());
+          if (previousCPS.isEmpty()) {
+            maxCPS = 0;
+          }
+
           maxCPS = Math.max(maxCPS, cps.getCPS());
           player
               .spigot()
@@ -106,6 +111,11 @@ public class AntiACCommand implements TabExecutor {
         }
       }
     }.runTaskTimer(AntiAC.getInstance(), 0, 2);
+  }
+
+  private CPS getPreviousCPS(UUID playerId) {
+    List<CPS> cpsList = clickTracker.getCPSList(playerId);
+    return cpsList.size() > 1 ? cpsList.get(cpsList.size() - 2) : CPS.EMPTY;
   }
 
   private boolean handleCancelCommand(Player player) {
