@@ -22,6 +22,7 @@ import de.godcipher.antiac.listener.bukkit.PlayerFlaggedListener;
 import de.godcipher.antiac.listener.bukkit.PlayerQuitListener;
 import de.godcipher.antiac.listener.protocol.PlayerDiggingPacketListener;
 import de.godcipher.antiac.listener.protocol.PlayerInteractWithEntityPacketListener;
+import de.godcipher.antiac.messages.Messages;
 import de.godcipher.antiac.tasks.CheckExecutionTask;
 import de.godcipher.antiac.tasks.ClearViolationsTask;
 import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder;
@@ -57,6 +58,7 @@ public final class AntiAC extends JavaPlugin {
   public void onEnable() {
     instance = this;
 
+    setupMessages();
     loadConfig();
     initializeBStats();
     startTPSChecker();
@@ -71,6 +73,11 @@ public final class AntiAC extends JavaPlugin {
 
   @Override
   public void onDisable() {}
+
+  private void setupMessages() {
+    Messages.setup();
+    Messages.migrate();
+  }
 
   private void registerCommands() {
     Bukkit.getPluginCommand("antiac").setExecutor(new AntiACCommand(clickTracker));

@@ -3,6 +3,8 @@ package de.godcipher.antiac.commands;
 import de.godcipher.antiac.AntiAC;
 import de.godcipher.antiac.click.CPS;
 import de.godcipher.antiac.click.ClickTracker;
+import de.godcipher.antiac.messages.Messages;
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,14 +34,14 @@ public class AntiACCommand implements TabExecutor {
       @NotNull String s,
       @NotNull String[] args) {
     if (!(commandSender instanceof Player)) {
-      commandSender.sendMessage("This command can only be executed by a player.");
+      commandSender.sendMessage(Messages.getString("command.only_player"));
       return true;
     }
 
     Player player = (Player) commandSender;
 
     if (args.length == 0) {
-      player.sendMessage("Please specify a subcommand.");
+      player.sendMessage(Messages.getString("command.specify_subcommand"));
       return true;
     }
 
@@ -49,7 +51,8 @@ public class AntiACCommand implements TabExecutor {
       case "cancel" -> handleCancelCommand(player);
       default -> {
         player.sendMessage(
-            "Unknown subcommand. Available subcommands: " + String.join(", ", subCommands));
+            MessageFormat.format(
+                Messages.getString("command.unknown_subcommand"), String.join(", ", subCommands)));
         yield true;
       }
     };
@@ -57,18 +60,19 @@ public class AntiACCommand implements TabExecutor {
 
   private boolean handleCheckCommand(Player player, String[] args) {
     if (args.length < 2) {
-      player.sendMessage("Please specify a player to check.");
+      player.sendMessage(Messages.getString("command.check.specify_player"));
       return true;
     }
 
     Player target = player.getServer().getPlayer(args[1]);
     if (target == null) {
-      player.sendMessage("Player not found.");
+      player.sendMessage(Messages.getString("command.check.player_not_found"));
       return true;
     }
 
     playerChecks.put(player.getUniqueId(), target.getUniqueId());
-    player.sendMessage("You are now checking " + target.getName() + ".");
+    player.sendMessage(
+        MessageFormat.format(Messages.getString("command.check.now_checking"), target.getName()));
     startCheckTask(player, target);
     return true;
   }
@@ -96,12 +100,12 @@ public class AntiACCommand implements TabExecutor {
 
   private boolean handleCancelCommand(Player player) {
     if (!playerChecks.containsKey(player.getUniqueId())) {
-      player.sendMessage("You are not currently checking any player.");
+      player.sendMessage(Messages.getString("command.cancel.not_checking"));
       return true;
     }
 
     playerChecks.remove(player.getUniqueId());
-    player.sendMessage("You have canceled the check.");
+    player.sendMessage(Messages.getString("command.cancel.canceled"));
     return true;
   }
 
