@@ -41,9 +41,11 @@ public final class AntiAC extends JavaPlugin {
   private final Configuration configuration = new Configuration();
   private final TPSChecker tpsChecker = new TPSChecker();
 
-  @Getter private final CheckRegistry checkRegistry = new CheckRegistry();
   @Getter private final ClickTracker clickTracker = new ClickTracker(configuration);
   @Getter private final ViolationTracker violationTracker = new ViolationTracker();
+
+  @Getter
+  private final CheckRegistry checkRegistry = new CheckRegistry(violationTracker, configuration);
 
   @Override
   public void onLoad() {
@@ -135,6 +137,8 @@ public final class AntiAC extends JavaPlugin {
         .getScheduler()
         .runTaskTimerAsynchronously(
             this, new CheckExecutionTask(clickTracker, checkRegistry, tpsChecker), 0, 20);
+
+    // TODO: async needed?
     getServer()
         .getScheduler()
         .runTaskTimerAsynchronously(
