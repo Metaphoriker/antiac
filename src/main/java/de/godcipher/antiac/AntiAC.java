@@ -12,10 +12,11 @@ import de.godcipher.antiac.config.Configuration;
 import de.godcipher.antiac.config.ConfigurationOption;
 import de.godcipher.antiac.detection.CheckRegistry;
 import de.godcipher.antiac.detection.checks.AfkClickingCheck;
-import de.godcipher.antiac.detection.checks.ClickPatternConsistencyCheck;
 import de.godcipher.antiac.detection.checks.ClickLimitCheck;
+import de.godcipher.antiac.detection.checks.ClickPatternConsistencyCheck;
 import de.godcipher.antiac.detection.checks.DoubleClickCheck;
 import de.godcipher.antiac.detection.checks.MomentumCheck;
+import de.godcipher.antiac.detection.checks.ScaledCPSCheck;
 import de.godcipher.antiac.detection.reliability.TPSChecker;
 import de.godcipher.antiac.detection.violation.ViolationTracker;
 import de.godcipher.antiac.listener.bukkit.PlayerFlaggedListener;
@@ -161,6 +162,7 @@ public final class AntiAC extends JavaPlugin {
     // checkRegistry.registerCheck(new CPSSpanCheck(clickTracker));
     checkRegistry.registerCheck(new DoubleClickCheck(clickTracker));
     checkRegistry.registerCheck(new MomentumCheck(clickTracker));
+    checkRegistry.registerCheck(new ScaledCPSCheck(clickTracker));
   }
 
   private void registerBukkitListener() {

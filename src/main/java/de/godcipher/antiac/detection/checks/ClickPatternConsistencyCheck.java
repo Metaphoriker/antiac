@@ -3,6 +3,7 @@ package de.godcipher.antiac.detection.checks;
 import de.godcipher.antiac.click.CPS;
 import de.godcipher.antiac.click.Click;
 import de.godcipher.antiac.click.ClickTracker;
+import de.godcipher.antiac.config.ConfigurationOption;
 import de.godcipher.antiac.detection.Check;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +19,7 @@ public class ClickPatternConsistencyCheck extends Check {
   private static final String IDENTICAL_DELAY_THRESHOLD_CONFIG = "identical-delay-threshold";
 
   private int clickThreshold;
-  private int minDeviationThreshold;
+  private double minDeviationThreshold;
   private int jitterThreshold;
   private int smallWindow;
   private int identicalDelayThreshold;
@@ -29,6 +30,7 @@ public class ClickPatternConsistencyCheck extends Check {
 
   @Override
   protected void onLoad() {
+    setupDefaults();
     initializeConfigValues();
   }
 
@@ -63,9 +65,32 @@ public class ClickPatternConsistencyCheck extends Check {
     return false;
   }
 
+  private void setupDefaults() {
+    getCheckConfiguration()
+        .addConfigOption(
+            CLICK_THRESHOLD_CONFIG,
+            ConfigurationOption.ofInteger(10, "Minimum number of clicks to analyze."));
+    getCheckConfiguration()
+        .addConfigOption(
+            MIN_DEVIATION_THRESHOLD_CONFIG,
+            ConfigurationOption.ofDouble(1.5, "Minimum deviation threshold."));
+    getCheckConfiguration()
+        .addConfigOption(
+            JITTER_THRESHOLD_CONFIG,
+            ConfigurationOption.ofInteger(10, "Jitter threshold for click delays."));
+    getCheckConfiguration()
+        .addConfigOption(
+            SMALL_WINDOW_CONFIG,
+            ConfigurationOption.ofInteger(5, "Small window for delay comparison."));
+    getCheckConfiguration()
+        .addConfigOption(
+            IDENTICAL_DELAY_THRESHOLD_CONFIG,
+            ConfigurationOption.ofInteger(3, "Threshold for identical delays."));
+  }
+
   private void initializeConfigValues() {
     clickThreshold = getIntegerConfigValue(CLICK_THRESHOLD_CONFIG);
-    minDeviationThreshold = getIntegerConfigValue(MIN_DEVIATION_THRESHOLD_CONFIG);
+    minDeviationThreshold = getDoubleConfigValue(MIN_DEVIATION_THRESHOLD_CONFIG);
     jitterThreshold = getIntegerConfigValue(JITTER_THRESHOLD_CONFIG);
     smallWindow = getIntegerConfigValue(SMALL_WINDOW_CONFIG);
     identicalDelayThreshold = getIntegerConfigValue(IDENTICAL_DELAY_THRESHOLD_CONFIG);
@@ -147,6 +172,10 @@ public class ClickPatternConsistencyCheck extends Check {
 
   private int getIntegerConfigValue(String key) {
     return (Integer) getCheckConfiguration().getConfigOption(key).getValue();
+  }
+
+  private double getDoubleConfigValue(String key) {
+    return (Double) getCheckConfiguration().getConfigOption(key).getValue();
   }
 
   private void logPatternIssue(String message, Object... args) {
