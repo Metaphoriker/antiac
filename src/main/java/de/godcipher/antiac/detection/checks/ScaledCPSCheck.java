@@ -57,12 +57,6 @@ public class ScaledCPSCheck extends Check {
           expectedScaledDelay);
       onFlag(player);
       return true;
-    } else {
-      log.info(
-          "Player: {} passed ScaledCPSCheck. Actual: {}, Expected: {}",
-          player.getName(),
-          actualTotalDelay,
-          expectedScaledDelay);
     }
 
     return false;
