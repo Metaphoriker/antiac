@@ -31,8 +31,7 @@ public class FlagHandler {
 
   public void handleFlag(Player player) {
     List<String> commands =
-        (List<String>)
-            AntiAC.getInstance().getConfiguration().getConfigOption("commands").getValue();
+        AntiAC.getInstance().getConfiguration().getConfigOption("commands").asStringList();
 
     if (commands.isEmpty()) {
       return;
