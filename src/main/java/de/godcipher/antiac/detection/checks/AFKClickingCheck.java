@@ -15,7 +15,7 @@ import org.bukkit.entity.Player;
 
 /** AfkClickingCheck checks for players that are clicking while being AFK. */
 @Slf4j
-public class AfkClickingCheck extends Check {
+public class AFKClickingCheck extends Check {
 
   private static final String AFK_AFTER_SECONDS_CONFIG = "afk-after-seconds";
 
@@ -24,7 +24,7 @@ public class AfkClickingCheck extends Check {
 
   private int afkAfterSeconds = 10;
 
-  public AfkClickingCheck(ClickTracker clickTracker) {
+  public AFKClickingCheck(ClickTracker clickTracker) {
     super(clickTracker);
   }
 

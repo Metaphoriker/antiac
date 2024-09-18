@@ -13,7 +13,7 @@ import de.godcipher.antiac.config.Configuration;
 import de.godcipher.antiac.config.ConfigurationOption;
 import de.godcipher.antiac.detection.Check;
 import de.godcipher.antiac.detection.CheckRegistry;
-import de.godcipher.antiac.detection.checks.AfkClickingCheck;
+import de.godcipher.antiac.detection.checks.AFKClickingCheck;
 import de.godcipher.antiac.detection.checks.ClickLimitCheck;
 import de.godcipher.antiac.detection.checks.ClickPatternConsistencyCheck;
 import de.godcipher.antiac.detection.checks.DoubleClickCheck;
@@ -177,7 +177,7 @@ public final class AntiAC extends JavaPlugin {
   }
 
   private void registerChecks() {
-    checkRegistry.registerCheck(new AfkClickingCheck(clickTracker));
+    checkRegistry.registerCheck(new AFKClickingCheck(clickTracker));
     checkRegistry.registerCheck(new ClickPatternConsistencyCheck(clickTracker));
     checkRegistry.registerCheck(new ClickLimitCheck(clickTracker));
     checkRegistry.registerCheck(new DoubleClickCheck(clickTracker));
