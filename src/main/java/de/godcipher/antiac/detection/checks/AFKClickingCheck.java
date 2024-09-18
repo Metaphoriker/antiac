@@ -51,6 +51,8 @@ public class AFKClickingCheck extends Check {
     if (locations.size() < afkAfterSeconds) {
       locations.add(player.getLocation());
       return false;
+    } else if (locations.size() > afkAfterSeconds) {
+      locations.removeFirst();
     }
 
     playerLocations.remove(player.getUniqueId());
