@@ -3,6 +3,7 @@ package de.godcipher.antiac.commands;
 import de.godcipher.antiac.AntiAC;
 import de.godcipher.antiac.click.CPS;
 import de.godcipher.antiac.click.ClickTracker;
+import de.godcipher.antiac.detection.violation.ViolationTracker;
 import de.godcipher.antiac.messages.Messages;
 import java.text.MessageFormat;
 import java.util.HashMap;
@@ -26,12 +27,18 @@ public class AntiACCommand implements TabExecutor {
 
   private static final String ERROR_COLOR = "#866E84"; // Purple Mauve
   private static final String SUCCESS_COLOR = "#727459"; // Pine Green
+  private static final String BRASS_YELLOW_COLOR = "#B5A642"; // Brass Yellow
+  private static final String COPPER_ORANGE_COLOR = "#C77F4F"; // Copper Orange
+  private static final String SLATE_GRAY_COLOR = "#6E6E6D"; // Slate Gray
+  private static final String ROSEWOOD_RED_COLOR = "#A65257"; // Rosewood Red
   private static final String ERROR_TITLE = "Error";
   private static final String SUCCESS_TITLE = "✔";
 
   private final List<String> subCommands = List.of("check", "cancel");
   private final Map<UUID, UUID> playerChecks = new HashMap<>();
+
   private final ClickTracker clickTracker;
+  private final ViolationTracker violationTracker;
 
   @Override
   public boolean onCommand(
@@ -101,11 +108,29 @@ public class AntiACCommand implements TabExecutor {
           }
 
           maxCPS = Math.max(maxCPS, cps.getCPS());
+
+          String cpsPart = net.md_5.bungee.api.ChatColor.of(BRASS_YELLOW_COLOR) + "" + cps;
+          String separator = net.md_5.bungee.api.ChatColor.of(SUCCESS_COLOR) + " | ";
+          String maxCpsPart = net.md_5.bungee.api.ChatColor.of(COPPER_ORANGE_COLOR) + "" + maxCPS;
+          String violationPart =
+              net.md_5.bungee.api.ChatColor.of(SLATE_GRAY_COLOR)
+                  + "Violations: "
+                  + net.md_5.bungee.api.ChatColor.of(ROSEWOOD_RED_COLOR)
+                  + violationTracker.getViolationCount(target.getUniqueId());
+
+          StringBuilder message = new StringBuilder();
+          message
+              .append(cpsPart)
+              .append(separator)
+              .append(maxCpsPart)
+              .append(net.md_5.bungee.api.ChatColor.of(ROSEWOOD_RED_COLOR))
+              .append(" - ")
+              .append(violationPart);
+
           player
               .spigot()
               .sendMessage(
-                  ChatMessageType.ACTION_BAR,
-                  TextComponent.fromLegacyText("§e" + cps + " | §6§l" + maxCPS));
+                  ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(message.toString()));
         } else {
           cancel();
         }

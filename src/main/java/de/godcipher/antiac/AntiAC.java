@@ -81,7 +81,8 @@ public final class AntiAC extends JavaPlugin {
   }
 
   private void registerCommands() {
-    Bukkit.getPluginCommand("antiac").setExecutor(new AntiACCommand(clickTracker));
+    Bukkit.getPluginCommand("antiac")
+        .setExecutor(new AntiACCommand(clickTracker, violationTracker));
   }
 
   private void loadConfig() {
