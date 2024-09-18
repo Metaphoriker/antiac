@@ -1,103 +1,86 @@
 package de.godcipher.antiac.commands;
 
+import co.aikar.commands.BaseCommand;
+import co.aikar.commands.annotation.CommandAlias;
+import co.aikar.commands.annotation.Default;
+import co.aikar.commands.annotation.Description;
+import co.aikar.commands.annotation.Optional;
+import co.aikar.commands.annotation.Subcommand;
 import de.godcipher.antiac.AntiAC;
 import de.godcipher.antiac.click.CPS;
 import de.godcipher.antiac.click.ClickTracker;
 import de.godcipher.antiac.detection.violation.ViolationTracker;
 import de.godcipher.antiac.messages.Colors;
 import de.godcipher.antiac.messages.Messages;
-import java.text.MessageFormat;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
-import org.bukkit.Bukkit;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 @RequiredArgsConstructor
-public class AntiACCommand implements TabExecutor {
+@CommandAlias("antiac")
+public class AntiACCommand extends BaseCommand {
 
   private static final String ERROR_TITLE = "Error";
   private static final String SUCCESS_TITLE = "✔";
 
-  private final List<String> subCommands = List.of("check", "cancel");
   private final Map<UUID, UUID> playerChecks = new HashMap<>();
-
   private final ClickTracker clickTracker;
   private final ViolationTracker violationTracker;
 
-  @Override
-  public boolean onCommand(
-      @NotNull CommandSender commandSender,
-      @NotNull Command command,
-      @NotNull String label,
-      @NotNull String[] args) {
-    if (!(commandSender instanceof Player)) {
-      commandSender.sendMessage(Messages.getString("command.only_player"));
-      return true;
-    }
-
-    Player player = (Player) commandSender;
-
-    if (args.length == 0) {
-      sendTitle(
-          player,
-          Colors.ERROR_COLOR,
-          ERROR_TITLE,
-          Messages.getString("command.specify_subcommand"));
-      return true;
-    }
-
-    String subCommand = args[0].toLowerCase();
-    return switch (subCommand) {
-      case "check" -> handleCheckCommand(player, args);
-      case "cancel" -> handleCancelCommand(player);
-      default -> {
-        sendTitle(
-            player,
-            Colors.ERROR_COLOR,
-            ERROR_TITLE,
-            MessageFormat.format(
-                Messages.getString("command.unknown_subcommand"), String.join(", ", subCommands)));
-        yield true;
-      }
-    };
+  @Default
+  @Description("Specify a subcommand")
+  public void onDefault(Player player) {
+    sendTitle(
+        player, Colors.ERROR_COLOR, ERROR_TITLE, Messages.getString("command.specify_subcommand"));
   }
 
-  private boolean handleCheckCommand(Player player, String[] args) {
-    if (args.length < 2) {
+  @Subcommand("check")
+  @Description("Check a player's CPS")
+  public void onCheck(Player player, @Optional String targetName) {
+    if (targetName == null) {
       sendTitle(
           player,
           Colors.ERROR_COLOR,
           ERROR_TITLE,
           Messages.getString("command.check.specify_player"));
-      return true;
+      return;
     }
 
-    Player target = player.getServer().getPlayer(args[1]);
+    Player target = player.getServer().getPlayer(targetName);
     if (target == null) {
       sendTitle(
           player,
           Colors.ERROR_COLOR,
           ERROR_TITLE,
           Messages.getString("command.check.player_not_found"));
-      return true;
+      return;
     }
 
     playerChecks.put(player.getUniqueId(), target.getUniqueId());
     sendTitle(player, Colors.SUCCESS_COLOR, SUCCESS_TITLE, "");
     startCheckTask(player, target);
-    return true;
+  }
+
+  @Subcommand("cancel")
+  @Description("Cancel the current check")
+  public void onCancel(Player player) {
+    if (!playerChecks.containsKey(player.getUniqueId())) {
+      sendTitle(
+          player,
+          Colors.ERROR_COLOR,
+          ERROR_TITLE,
+          Messages.getString("command.cancel.not_checking"));
+      return;
+    }
+
+    playerChecks.remove(player.getUniqueId());
+    sendTitle(player, Colors.SUCCESS_COLOR, SUCCESS_TITLE, "");
   }
 
   private void startCheckTask(Player player, Player target) {
@@ -145,39 +128,10 @@ public class AntiACCommand implements TabExecutor {
   }
 
   private CPS getPreviousCPS(UUID playerId) {
-    List<CPS> cpsList = clickTracker.getCPSList(playerId);
-    return cpsList.size() > 1 ? cpsList.get(cpsList.size() - 2) : CPS.EMPTY;
-  }
-
-  private boolean handleCancelCommand(Player player) {
-    if (!playerChecks.containsKey(player.getUniqueId())) {
-      sendTitle(
-          player,
-          Colors.ERROR_COLOR,
-          ERROR_TITLE,
-          Messages.getString("command.cancel.not_checking"));
-      return true;
-    }
-
-    playerChecks.remove(player.getUniqueId());
-    sendTitle(player, Colors.SUCCESS_COLOR, SUCCESS_TITLE, "");
-    return true;
-  }
-
-  @Override
-  public @Nullable List<String> onTabComplete(
-      @NotNull CommandSender commandSender,
-      @NotNull Command command,
-      @NotNull String alias,
-      @NotNull String[] args) {
-    if (args.length == 1) {
-      return subCommands;
-    } else {
-      return Bukkit.getOnlinePlayers().stream()
-          .map(Player::getName)
-          .filter(name -> name.toLowerCase().startsWith(args[1].toLowerCase()))
-          .toList();
-    }
+    return clickTracker.getCPSList(playerId).stream()
+        .skip(Math.max(0, clickTracker.getCPSList(playerId).size() - 2))
+        .findFirst()
+        .orElse(CPS.EMPTY);
   }
 
   private void sendTitle(Player player, ChatColor chatColor, String title, String subtitle) {

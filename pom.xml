@@ -41,6 +41,10 @@
                         <configuration>
                             <relocations>
                                 <relocation>
+                                    <pattern>co.aikar</pattern>
+                                    <shadedPattern>de.godcipher.antiac.shaded.aikar</shadedPattern>
+                                </relocation>
+                                <relocation>
                                     <pattern>org.bstats</pattern>
                                     <shadedPattern>de.godcipher.antiac.shaded.bstats</shadedPattern>
                                 </relocation>
@@ -85,6 +89,10 @@
         <repository>
             <id>codemc-releases</id>
             <url>https://repo.codemc.io/repository/maven-releases/</url>
+        </repository>
+        <repository>
+            <id>aikar</id>
+            <url>https://repo.aikar.co/content/groups/aikar/</url>
         </repository>
     </repositories>
 
@@ -135,6 +143,11 @@
             <artifactId>bstats-bukkit</artifactId>
             <version>3.0.3</version>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>co.aikar</groupId>
+            <artifactId>acf-paper</artifactId>
+            <version>0.5.1-SNAPSHOT</version>
         </dependency>
     </dependencies>
 </project>

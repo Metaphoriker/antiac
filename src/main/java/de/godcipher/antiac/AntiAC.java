@@ -1,5 +1,6 @@
 package de.godcipher.antiac;
 
+import co.aikar.commands.PaperCommandManager;
 import com.github.retrooper.packetevents.PacketEvents;
 import com.github.retrooper.packetevents.event.EventManager;
 import com.github.retrooper.packetevents.event.PacketListenerPriority;
@@ -32,7 +33,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 @Slf4j
@@ -60,14 +60,18 @@ public final class AntiAC extends JavaPlugin {
     instance = this;
 
     setupMessages();
+    setupCommandFramework();
+    setupPacketEvents();
+
     loadConfig();
     initializeBStats();
+
     startTPSChecker();
-    setupPacketEvents();
+
     registerChecks();
-    registerCommands();
     registerBukkitListener();
     registerPacketListener();
+
     runTasks();
     printRegisteredChecksAmount();
   }
@@ -80,9 +84,9 @@ public final class AntiAC extends JavaPlugin {
     Messages.migrate();
   }
 
-  private void registerCommands() {
-    Bukkit.getPluginCommand("antiac")
-        .setExecutor(new AntiACCommand(clickTracker, violationTracker));
+  private void setupCommandFramework() {
+    PaperCommandManager commandManager = new PaperCommandManager(this);
+    commandManager.registerCommand(new AntiACCommand(clickTracker, violationTracker));
   }
 
   private void loadConfig() {
