@@ -5,17 +5,16 @@ import co.aikar.commands.annotation.*;
 import de.godcipher.antiac.AntiAC;
 import de.godcipher.antiac.click.CPS;
 import de.godcipher.antiac.click.ClickTracker;
+import de.godcipher.antiac.config.Configuration;
 import de.godcipher.antiac.detection.Check;
 import de.godcipher.antiac.detection.violation.ViolationTracker;
 import de.godcipher.antiac.messages.Colors;
 import de.godcipher.antiac.messages.Messages;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ChatMessageType;
@@ -25,7 +24,6 @@ import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
-@RequiredArgsConstructor
 @CommandAlias("antiac")
 @Slf4j
 public class AntiACCommand extends BaseCommand {
@@ -36,11 +34,19 @@ public class AntiACCommand extends BaseCommand {
   private final Map<UUID, UUID> playerChecks = new HashMap<>();
   private final ClickTracker clickTracker;
   private final ViolationTracker violationTracker;
+  private final boolean modernFeedback;
+
+  public AntiACCommand(
+      ClickTracker clickTracker, ViolationTracker violationTracker, Configuration configuration) {
+    this.clickTracker = clickTracker;
+    this.violationTracker = violationTracker;
+    this.modernFeedback = configuration.getConfigOption("modern-feedback").asBoolean();
+  }
 
   @Default
   @Description("Specify a subcommand")
   public void onDefault(Player player) {
-    sendTitle(
+    sendFeedback(
         player,
         Colors.PURPLE_MAUVE_COLOR,
         ERROR_TITLE,
@@ -50,7 +56,7 @@ public class AntiACCommand extends BaseCommand {
   @CatchUnknown
   @Description("Unknown subcommand")
   public void onUnknown(Player player) {
-    sendTitle(
+    sendFeedback(
         player,
         Colors.PURPLE_MAUVE_COLOR,
         ERROR_TITLE,
@@ -63,7 +69,7 @@ public class AntiACCommand extends BaseCommand {
   @Description("Check a player's CPS")
   public void onCheck(Player player, @Optional String targetName) {
     if (targetName == null) {
-      sendTitle(
+      sendFeedback(
           player,
           Colors.PURPLE_MAUVE_COLOR,
           ERROR_TITLE,
@@ -73,7 +79,7 @@ public class AntiACCommand extends BaseCommand {
 
     Player target = player.getServer().getPlayer(targetName);
     if (target == null) {
-      sendTitle(
+      sendFeedback(
           player,
           Colors.PURPLE_MAUVE_COLOR,
           ERROR_TITLE,
@@ -82,7 +88,11 @@ public class AntiACCommand extends BaseCommand {
     }
 
     playerChecks.put(player.getUniqueId(), target.getUniqueId());
-    sendTitle(player, Colors.PINE_GREEN_COLOR, SUCCESS_TITLE, "");
+    sendFeedback(
+        player,
+        Colors.PINE_GREEN_COLOR,
+        SUCCESS_TITLE,
+        Messages.getString("command.check.checking_player").replace("%player%", target.getName()));
     startCheckTask(player, target);
   }
 
@@ -91,7 +101,7 @@ public class AntiACCommand extends BaseCommand {
   @Description("Cancel the current check")
   public void onCancel(Player player) {
     if (!playerChecks.containsKey(player.getUniqueId())) {
-      sendTitle(
+      sendFeedback(
           player,
           Colors.PURPLE_MAUVE_COLOR,
           ERROR_TITLE,
@@ -100,14 +110,22 @@ public class AntiACCommand extends BaseCommand {
     }
 
     playerChecks.remove(player.getUniqueId());
-    sendTitle(player, Colors.PINE_GREEN_COLOR, SUCCESS_TITLE, "");
+    sendFeedback(
+        player,
+        Colors.PINE_GREEN_COLOR,
+        SUCCESS_TITLE,
+        Messages.getString("command.cancel.checking"));
   }
 
   @Subcommand("checks")
   @CommandPermission("antiac.checks")
   @Description("List all checks with activate/deactivate buttons")
   public void onChecks(Player player) {
-    sendTitle(player, Colors.PINE_GREEN_COLOR, SUCCESS_TITLE, "");
+    sendFeedback(
+        player,
+        Colors.PINE_GREEN_COLOR,
+        SUCCESS_TITLE,
+        Messages.getString("command.checks.listing"));
 
     // Space above the header
     player.spigot().sendMessage(new TextComponent(" "));
@@ -135,19 +153,24 @@ public class AntiACCommand extends BaseCommand {
     Check check = AntiAC.getInstance().getCheckRegistry().getCheckByName(checkName);
     if (check != null) {
       if (check.isActivated()) {
-        sendTitle(
+        sendFeedback(
             player,
             Colors.PURPLE_MAUVE_COLOR,
             ERROR_TITLE,
             Messages.getString("command.check.already_active"));
         return;
       }
+
       check.setActivated(true);
-      sendTitle(player, Colors.PINE_GREEN_COLOR, SUCCESS_TITLE, "");
-      log.debug("Check {} activated by {}", checkName, player.getName());
       onChecks(player); // Resend the checks list
+      sendFeedback(
+          player,
+          Colors.PINE_GREEN_COLOR,
+          SUCCESS_TITLE,
+          Messages.getString("command.check.activate").replace("%check%", check.getName()));
+      log.debug("Check {} activated by {}", checkName, player.getName());
     } else {
-      sendTitle(
+      sendFeedback(
           player,
           Colors.PURPLE_MAUVE_COLOR,
           ERROR_TITLE,
@@ -163,7 +186,7 @@ public class AntiACCommand extends BaseCommand {
     Check check = AntiAC.getInstance().getCheckRegistry().getCheckByName(checkName);
     if (check != null) {
       if (!check.isActivated()) {
-        sendTitle(
+        sendFeedback(
             player,
             Colors.PURPLE_MAUVE_COLOR,
             ERROR_TITLE,
@@ -171,11 +194,15 @@ public class AntiACCommand extends BaseCommand {
         return;
       }
       check.setActivated(false);
-      sendTitle(player, Colors.PINE_GREEN_COLOR, SUCCESS_TITLE, "");
-      log.debug("Check {} deactivated by {}", checkName, player.getName());
       onChecks(player); // Resend the checks list
+      sendFeedback(
+          player,
+          Colors.PINE_GREEN_COLOR,
+          SUCCESS_TITLE,
+          Messages.getString("command.check.deactivate").replace("%check%", check.getName()));
+      log.debug("Check {} deactivated by {}", checkName, player.getName());
     } else {
-      sendTitle(
+      sendFeedback(
           player,
           Colors.PURPLE_MAUVE_COLOR,
           ERROR_TITLE,
@@ -224,7 +251,11 @@ public class AntiACCommand extends BaseCommand {
     return cpsList.stream().skip(Math.max(0, cpsList.size() - 2)).findFirst().orElse(CPS.EMPTY);
   }
 
-  private void sendTitle(Player player, ChatColor chatColor, String title, String subtitle) {
+  private void sendFeedback(Player player, ChatColor chatColor, String title, String subtitle) {
+    if (!modernFeedback) {
+      player.sendMessage(chatColor + title + " §7" + subtitle);
+      return;
+    }
     player.sendTitle(chatColor + title, "§7" + subtitle, 10, 70, 20);
   }
 

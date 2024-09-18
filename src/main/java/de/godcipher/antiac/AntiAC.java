@@ -62,13 +62,13 @@ public final class AntiAC extends JavaPlugin {
   public void onEnable() {
     instance = this;
 
+    loadConfig();
     registerChecks();
 
     setupMessages();
     setupCommandFramework();
     setupPacketEvents();
 
-    loadConfig();
     initializeBStats();
 
     startTPSChecker();
@@ -91,7 +91,8 @@ public final class AntiAC extends JavaPlugin {
   private void setupCommandFramework() {
     PaperCommandManager commandManager = new PaperCommandManager(this);
     registerCommandCompletions(commandManager);
-    commandManager.registerCommand(new AntiACCommand(clickTracker, violationTracker));
+    commandManager.registerCommand(
+        new AntiACCommand(clickTracker, violationTracker, configuration));
   }
 
   private void registerCommandCompletions(PaperCommandManager commandManager) {
@@ -124,6 +125,8 @@ public final class AntiAC extends JavaPlugin {
         "allowed-clicktypes",
         new ConfigurationOption<>(
             clickTypes, "What click types should AntiAC track? " + clickTypes));
+    configuration.addConfigOption(
+        "modern-feedback", new ConfigurationOption<>(true, "Enable modern feedback"));
     configuration.addConfigOption(
         "log-to-database", new ConfigurationOption<>(false, "Enable logging to database"));
     configuration.addConfigOption("database-url", new ConfigurationOption<>("", "Database URL"));
