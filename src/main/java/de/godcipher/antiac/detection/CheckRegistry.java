@@ -33,6 +33,13 @@ public class CheckRegistry {
         .forEach(check -> processCheck(player, check));
   }
 
+  public Check getCheckByName(String name) {
+    return checks.stream()
+        .filter(check -> check.getName().equalsIgnoreCase(name))
+        .findFirst()
+        .orElse(null);
+  }
+
   private boolean isCheckActiveAndLoaded(Check check) {
     return check.isActivated() && check.isLoaded();
   }

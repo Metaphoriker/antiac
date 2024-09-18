@@ -11,6 +11,7 @@ import de.godcipher.antiac.click.ClickType;
 import de.godcipher.antiac.commands.AntiACCommand;
 import de.godcipher.antiac.config.Configuration;
 import de.godcipher.antiac.config.ConfigurationOption;
+import de.godcipher.antiac.detection.Check;
 import de.godcipher.antiac.detection.CheckRegistry;
 import de.godcipher.antiac.detection.checks.AfkClickingCheck;
 import de.godcipher.antiac.detection.checks.ClickLimitCheck;
@@ -59,6 +60,8 @@ public final class AntiAC extends JavaPlugin {
   public void onEnable() {
     instance = this;
 
+    registerChecks();
+
     setupMessages();
     setupCommandFramework();
     setupPacketEvents();
@@ -68,7 +71,6 @@ public final class AntiAC extends JavaPlugin {
 
     startTPSChecker();
 
-    registerChecks();
     registerBukkitListener();
     registerPacketListener();
 
@@ -86,7 +88,19 @@ public final class AntiAC extends JavaPlugin {
 
   private void setupCommandFramework() {
     PaperCommandManager commandManager = new PaperCommandManager(this);
+    registerCommandCompletions(commandManager);
     commandManager.registerCommand(new AntiACCommand(clickTracker, violationTracker));
+  }
+
+  private void registerCommandCompletions(PaperCommandManager commandManager) {
+    commandManager
+        .getCommandCompletions()
+        .registerCompletion(
+            "checks",
+            completionHandler ->
+                checkRegistry.getChecks().stream()
+                    .map(Check::getName)
+                    .collect(Collectors.toCollection(List::of)));
   }
 
   private void loadConfig() {

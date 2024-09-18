@@ -5,6 +5,7 @@ import de.godcipher.antiac.click.ClickTracker;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.bukkit.entity.Player;
 
@@ -17,7 +18,7 @@ public abstract class Check {
 
   protected final ClickTracker clickTracker;
 
-  @Getter private boolean activated;
+  @Getter @Setter private boolean activated;
   @Getter private boolean loaded;
 
   protected Check(ClickTracker clickTracker) {
