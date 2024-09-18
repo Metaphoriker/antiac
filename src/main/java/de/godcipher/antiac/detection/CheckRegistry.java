@@ -54,6 +54,7 @@ public class CheckRegistry {
   private void handleViolation(Player player, Check check) {
     violationTracker.addViolation(player.getUniqueId());
     if (violationTracker.getViolationCount(player.getUniqueId()) >= getMaxViolations()) {
+      violationTracker.resetViolation(player.getUniqueId());
       check.onFlag(player);
     }
   }
