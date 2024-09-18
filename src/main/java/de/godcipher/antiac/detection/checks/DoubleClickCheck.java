@@ -1,9 +1,10 @@
 package de.godcipher.antiac.detection.checks;
 
-import de.godcipher.antiac.detection.Check;
 import de.godcipher.antiac.click.CPS;
 import de.godcipher.antiac.click.Click;
 import de.godcipher.antiac.click.ClickTracker;
+import de.godcipher.antiac.config.ConfigurationOption;
+import de.godcipher.antiac.detection.Check;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.bukkit.entity.Player;
@@ -15,12 +16,22 @@ import org.bukkit.entity.Player;
 @Slf4j
 public class DoubleClickCheck extends Check {
 
+  private int requiredConsecutiveSuspiciousClicks = 3;
+
   public DoubleClickCheck(ClickTracker clickTracker) {
     super(clickTracker);
   }
 
   @Override
-  protected void onLoad() {}
+  protected void onLoad() {
+    setupDefaults();
+
+    requiredConsecutiveSuspiciousClicks =
+        (Integer)
+            getCheckConfiguration()
+                .getConfigOption("required-consecutive-suspicious-clicks")
+                .getValue();
+  }
 
   @Override
   protected void onUnload() {}
@@ -31,9 +42,11 @@ public class DoubleClickCheck extends Check {
     if (cps.isEmpty()) return false;
     List<Long> clicks = cps.getClicks().stream().map(Click::getTime).toList();
 
-    if (clicks.size() < 2) {
+    if (clicks.size() < 3) {
       return false;
     }
+
+    int consecutiveSuspiciousClicks = 0;
 
     for (int i = 0; i < clicks.size() - 1; i++) {
       long first = clicks.get(i);
@@ -41,10 +54,23 @@ public class DoubleClickCheck extends Check {
 
       // if the time difference between consecutive clicks is 0 or 1 ms, it's suspicious
       if (Math.abs(second - first) <= 1) {
-        return true;
+        consecutiveSuspiciousClicks++;
+        if (consecutiveSuspiciousClicks >= requiredConsecutiveSuspiciousClicks) {
+          return true;
+        }
+      } else {
+        consecutiveSuspiciousClicks = 0;
       }
     }
 
     return false;
+  }
+
+  private void setupDefaults() {
+    getCheckConfiguration()
+        .addConfigOption(
+            "required-consecutive-suspicious-clicks",
+            ConfigurationOption.ofInteger(
+                3, "The number of consecutive suspicious clicks required to flag"));
   }
 }
