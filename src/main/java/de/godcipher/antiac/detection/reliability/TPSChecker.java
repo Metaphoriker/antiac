@@ -1,17 +1,26 @@
 package de.godcipher.antiac.detection.reliability;
 
 import de.godcipher.antiac.AntiAC;
+import de.godcipher.antiac.config.Configuration;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.bukkit.scheduler.BukkitRunnable;
 
+@RequiredArgsConstructor
 public class TPSChecker {
 
+  private final Configuration configuration;
+
   @Getter private double tps;
+
+  private int reliableTpsThreshold = 18;
 
   private byte tick;
   private double lastFinish;
 
   public void start() {
+    reliableTpsThreshold = (int) configuration.getConfigOption("tps-protection").getValue();
+
     new BukkitRunnable() {
       @Override
       public void run() {
@@ -21,19 +30,21 @@ public class TPSChecker {
   }
 
   public boolean isReliable() {
-    return tps > 18; // TODO: make this configurable
+    return tps > reliableTpsThreshold;
   }
 
   private void tick() {
     tick++;
     if (tick == 20) {
-      tps = tick;
+      tps = calculateTPS();
       tick = 0;
-
-      if (lastFinish + 1000 < System.currentTimeMillis())
-        tps /= (System.currentTimeMillis() - lastFinish) / 1000;
-
       lastFinish = System.currentTimeMillis();
     }
+  }
+
+  private double calculateTPS() {
+    double currentTime = System.currentTimeMillis();
+    double elapsedTime = currentTime - lastFinish;
+    return elapsedTime > 1000 ? 20.0 / (elapsedTime / 1000) : 20.0;
   }
 }
