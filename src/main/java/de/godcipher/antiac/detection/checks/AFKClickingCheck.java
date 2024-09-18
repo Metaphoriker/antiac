@@ -38,8 +38,7 @@ public class AFKClickingCheck extends Check {
   protected void onLoad() {
     setupDefaults();
 
-    afkAfterSeconds =
-        (Integer) getCheckConfiguration().getConfigOption(AFK_AFTER_SECONDS_CONFIG).getValue();
+    afkAfterSeconds = getCheckConfiguration().getConfigOption(AFK_AFTER_SECONDS_CONFIG).asInteger();
   }
 
   @Override

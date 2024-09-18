@@ -30,10 +30,9 @@ public class DoubleClickCheck extends Check {
     setupDefaults();
 
     requiredConsecutiveSuspiciousClicks =
-        (Integer)
-            getCheckConfiguration()
-                .getConfigOption(REQUIRED_CONSECUTIVE_SUSPICIOUS_CLICKS_CONFIG)
-                .getValue();
+        getCheckConfiguration()
+            .getConfigOption(REQUIRED_CONSECUTIVE_SUSPICIOUS_CLICKS_CONFIG)
+            .asInteger();
   }
 
   @Override

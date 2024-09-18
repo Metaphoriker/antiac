@@ -35,11 +35,10 @@ public class MomentumCheck extends Check {
   protected void onLoad() {
     setupDefaults();
 
-    CPSThreshold =
-        (Integer) getCheckConfiguration().getConfigOption(CPS_THRESHOLD_CONFIG).getValue();
+    CPSThreshold = getCheckConfiguration().getConfigOption(CPS_THRESHOLD_CONFIG).asInteger();
     percentageThreshold =
-        (Integer) getCheckConfiguration().getConfigOption(PERCENTAGE_THRESHOLD_CONFIG).getValue();
-    windowSize = (Integer) getCheckConfiguration().getConfigOption(WINDOW_SIZE_CONFIG).getValue();
+        getCheckConfiguration().getConfigOption(PERCENTAGE_THRESHOLD_CONFIG).asInteger();
+    windowSize = getCheckConfiguration().getConfigOption(WINDOW_SIZE_CONFIG).asInteger();
   }
 
   @Override

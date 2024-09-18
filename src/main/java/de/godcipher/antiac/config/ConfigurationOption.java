@@ -24,4 +24,20 @@ public class ConfigurationOption<T> {
 
   T value;
   String comment;
+
+  public List<String> asStringList() {
+    return (List<String>) value;
+  }
+
+  public int asInteger() {
+    return (Integer) value;
+  }
+
+  public double asDouble() {
+    return (Double) value;
+  }
+
+  public boolean asBoolean() {
+    return (Boolean) value;
+  }
 }

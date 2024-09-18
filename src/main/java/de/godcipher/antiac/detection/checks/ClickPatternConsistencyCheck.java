@@ -171,11 +171,11 @@ public class ClickPatternConsistencyCheck extends Check {
   }
 
   private int getIntegerConfigValue(String key) {
-    return (Integer) getCheckConfiguration().getConfigOption(key).getValue();
+    return getCheckConfiguration().getConfigOption(key).asInteger();
   }
 
   private double getDoubleConfigValue(String key) {
-    return (Double) getCheckConfiguration().getConfigOption(key).getValue();
+    return getCheckConfiguration().getConfigOption(key).asDouble();
   }
 
   private void logPatternIssue(String message, Object... args) {

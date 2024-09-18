@@ -31,9 +31,8 @@ public class ScaledCPSCheck extends Check {
   protected void onLoad() {
     setupDefaults();
 
-    totalDelayMs =
-        (Integer) getCheckConfiguration().getConfigOption(TOTAL_DELAY_MS_CONFIG).getValue();
-    minClicks = (Integer) getCheckConfiguration().getConfigOption(MIN_CLICKS_CONFIG).getValue();
+    totalDelayMs = getCheckConfiguration().getConfigOption(TOTAL_DELAY_MS_CONFIG).asInteger();
+    minClicks = getCheckConfiguration().getConfigOption(MIN_CLICKS_CONFIG).asInteger();
   }
 
   @Override
