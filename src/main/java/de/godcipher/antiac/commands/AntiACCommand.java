@@ -21,9 +21,8 @@ import org.jetbrains.annotations.Nullable;
 @RequiredArgsConstructor
 public class AntiACCommand implements TabExecutor {
 
-  private final List<String> subCommands = List.of("check");
+  private final List<String> subCommands = List.of("check", "cancel");
   private final Map<UUID, UUID> playerChecks = new HashMap<>();
-
   private final ClickTracker clickTracker;
 
   @Override
@@ -44,62 +43,66 @@ public class AntiACCommand implements TabExecutor {
       return true;
     }
 
-    if (!subCommands.contains(args[0].toLowerCase())) {
-      player.sendMessage(
-          "Unknown subcommand. Available subcommands: " + String.join(", ", subCommands));
+    String subCommand = args[0].toLowerCase();
+    return switch (subCommand) {
+      case "check" -> handleCheckCommand(player, args);
+      case "cancel" -> handleCancelCommand(player);
+      default -> {
+        player.sendMessage(
+            "Unknown subcommand. Available subcommands: " + String.join(", ", subCommands));
+        yield true;
+      }
+    };
+  }
+
+  private boolean handleCheckCommand(Player player, String[] args) {
+    if (args.length < 2) {
+      player.sendMessage("Please specify a player to check.");
       return true;
     }
 
-    if (args[0].equalsIgnoreCase("check")) {
-      if (args.length < 2) {
-        player.sendMessage("Please specify a player to check.");
-        return true;
-      }
+    Player target = player.getServer().getPlayer(args[1]);
+    if (target == null) {
+      player.sendMessage("Player not found.");
+      return true;
+    }
 
-      Player target = player.getServer().getPlayer(args[1]);
-      if (target == null) {
-        player.sendMessage("Player not found.");
-        return true;
-      }
+    playerChecks.put(player.getUniqueId(), target.getUniqueId());
+    player.sendMessage("You are now checking " + target.getName() + ".");
+    startCheckTask(player, target);
+    return true;
+  }
 
-      playerChecks.put(player.getUniqueId(), target.getUniqueId());
-      player.sendMessage("You are now checking " + target.getName() + ".");
+  private void startCheckTask(Player player, Player target) {
+    new BukkitRunnable() {
+      int maxCPS;
 
-      // TODO: per player?
-      new BukkitRunnable() {
-
-        int maxCPS;
-
-        @Override
-        public void run() {
-          if (playerChecks.containsKey(player.getUniqueId())) {
-            CPS cps = clickTracker.getLatestCPS(target.getUniqueId());
-            maxCPS = Math.max(maxCPS, cps.getCPS());
-            player
-                .spigot()
-                .sendMessage(
-                    ChatMessageType.ACTION_BAR,
-                    TextComponent.fromLegacyText("§e" + cps + " | §6§l" + maxCPS));
-          } else {
-            cancel();
-          }
+      @Override
+      public void run() {
+        if (playerChecks.containsKey(player.getUniqueId())) {
+          CPS cps = clickTracker.getLatestCPS(target.getUniqueId());
+          maxCPS = Math.max(maxCPS, cps.getCPS());
+          player
+              .spigot()
+              .sendMessage(
+                  ChatMessageType.ACTION_BAR,
+                  TextComponent.fromLegacyText("§e" + cps + " | §6§l" + maxCPS));
+        } else {
+          cancel();
         }
-      }.runTaskTimer(AntiAC.getInstance(), 0, 2);
-      return true;
-    }
-
-    if (args[0].equalsIgnoreCase("cancel")) {
-      if (!playerChecks.containsKey(player.getUniqueId())) {
-        player.sendMessage("You are not currently checking any player.");
-        return true;
       }
+    }.runTaskTimer(AntiAC.getInstance(), 0, 2);
+  }
 
-      playerChecks.remove(player.getUniqueId());
-      player.sendMessage("You have canceled the check.");
+  private boolean handleCancelCommand(Player player) {
+    if (!playerChecks.containsKey(player.getUniqueId())) {
+      player.sendMessage("You are not currently checking any player.");
       return true;
     }
 
-    return false;
+    playerChecks.remove(player.getUniqueId());
+    player.sendMessage("You have canceled the check.");
+    return true;
   }
 
   @Override

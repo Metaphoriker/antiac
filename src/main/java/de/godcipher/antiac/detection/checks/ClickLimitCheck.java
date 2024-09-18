@@ -22,7 +22,7 @@ public class ClickLimitCheck extends Check {
   protected void onLoad() {
     setupDefaults();
 
-    clickLimit = (Integer) getConfiguration().getConfigOption("limit").getValue();
+    clickLimit = (Integer) getCheckConfiguration().getConfigOption("limit").getValue();
   }
 
   @Override
@@ -34,7 +34,7 @@ public class ClickLimitCheck extends Check {
   }
 
   private void setupDefaults() {
-    getConfiguration()
+    getCheckConfiguration()
         .addConfigOption("limit", ConfigurationOption.ofInteger(40, "The upper limit of the CPS"));
   }
 }

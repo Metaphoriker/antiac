@@ -39,7 +39,7 @@ public final class AntiAC extends JavaPlugin {
   @Getter private static AntiAC instance;
 
   private final Configuration configuration = new Configuration();
-  private final TPSChecker tpsChecker = new TPSChecker();
+  private final TPSChecker tpsChecker = new TPSChecker(configuration);
 
   @Getter private final ClickTracker clickTracker = new ClickTracker(configuration);
   @Getter private final ViolationTracker violationTracker = new ViolationTracker();
@@ -87,12 +87,14 @@ public final class AntiAC extends JavaPlugin {
 
   private void loadConfigValues() {
     configuration.addConfigOption(
-        "max-cps", new ConfigurationOption<>(30, "Stores the last x CPS internally to process"));
+        "cps-storage-limit",
+        new ConfigurationOption<>(30, "Stores the last x CPS internally to process"));
+    List<String> clickTypes =
+        Arrays.stream(ClickType.values()).map(Enum::name).collect(Collectors.toList());
     configuration.addConfigOption(
         "allowed-clicktypes",
-        ConfigurationOption.ofStringList(
-            Arrays.stream(ClickType.values()).map(Enum::name).collect(Collectors.toList()),
-            "What click types should AntiAC track?"));
+        new ConfigurationOption<>(
+            clickTypes, "What click types should AntiAC track? " + clickTypes));
     configuration.addConfigOption(
         "log-to-database", new ConfigurationOption<>(false, "Enable logging to database"));
     configuration.addConfigOption("database-url", new ConfigurationOption<>("", "Database URL"));
@@ -112,8 +114,7 @@ public final class AntiAC extends JavaPlugin {
         "violations", new ConfigurationOption<>(true, "Enable violation-based actions"));
     configuration.addConfigOption(
         "max-violations",
-        new ConfigurationOption<>(
-            20, "Maximum amount of violations until the player gets flagged"));
+        new ConfigurationOption<>(8, "Maximum amount of violations until the player gets flagged"));
     configuration.addConfigOption(
         "bedrock-players",
         new ConfigurationOption<>(false, "Whether the server allows bedrock players"));

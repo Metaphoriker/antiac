@@ -12,17 +12,16 @@ import lombok.RequiredArgsConstructor;
 public class ClickTracker {
 
   private final Map<UUID, List<CPS>> playerClicksMap = new HashMap<>();
-
   private final Configuration configuration;
 
   public synchronized void addClick(UUID player, Click click) {
-    ensurePlayer(player);
+    ensurePlayerExists(player);
     CPS currentCPS = getLatestCPS(player);
     currentCPS.addClick(click);
   }
 
   public synchronized void addNewCPS(UUID player) {
-    ensurePlayer(player);
+    ensurePlayerExists(player);
     playerClicksMap.get(player).add(new CPS());
   }
 
@@ -30,26 +29,28 @@ public class ClickTracker {
     playerClicksMap.remove(player);
   }
 
-  private void ensurePlayer(UUID player) {
-    if (!playerClicksMap.containsKey(player)) {
-      playerClicksMap.put(player, new ArrayList<>());
-    }
+  private void ensurePlayerExists(UUID player) {
+    playerClicksMap.computeIfAbsent(player, k -> new ArrayList<>());
   }
 
   public synchronized List<CPS> getCPSList(UUID player) {
-    return playerClicksMap.get(player);
+    return playerClicksMap.getOrDefault(player, new ArrayList<>());
   }
 
   public synchronized CPS getLatestCPS(UUID player) {
-    List<CPS> cpsSet = playerClicksMap.get(player);
-    return cpsSet == null || cpsSet.isEmpty() ? CPS.EMPTY : cpsSet.getLast();
+    List<CPS> cpsList = playerClicksMap.get(player);
+    return (cpsList == null || cpsList.isEmpty()) ? CPS.EMPTY : cpsList.get(cpsList.size() - 1);
   }
 
   public void removeLastCPSIfExceedsLimit() {
-    for (var cpsSet : playerClicksMap.values()) {
-      if (cpsSet.size() > ((Integer) configuration.getConfigOption("max-cps").getValue())) {
-        cpsSet.removeFirst();
-      }
-    }
+    int maxCPS = (Integer) configuration.getConfigOption("cps-storage-limit").getValue();
+    playerClicksMap
+        .values()
+        .forEach(
+            cpsList -> {
+              if (cpsList.size() > maxCPS) {
+                cpsList.removeFirst();
+              }
+            });
   }
 }

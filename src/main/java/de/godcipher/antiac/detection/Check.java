@@ -1,24 +1,19 @@
 package de.godcipher.antiac.detection;
 
-import de.godcipher.antiac.AntiAC;
-import de.godcipher.antiac.bstats.BStatsHandler;
-import de.godcipher.antiac.config.Configuration;
-import de.godcipher.antiac.config.ConfigurationOption;
-import de.godcipher.antiac.event.PlayerFlaggedEvent;
 import de.godcipher.antiac.click.CPS;
 import de.godcipher.antiac.click.ClickTracker;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 @Slf4j
 public abstract class Check {
 
   @Getter private final String name;
-  private final Configuration configuration;
+  @Getter private final CheckConfiguration checkConfiguration;
+  private final FlagHandler flagHandler;
 
   protected final ClickTracker clickTracker;
 
@@ -29,12 +24,10 @@ public abstract class Check {
     this.name = this.getClass().getSimpleName();
     this.clickTracker = clickTracker;
 
-    this.configuration = new Configuration();
-    configuration.setupFile(name + ".yml", "checks");
-    configuration.addConfigOption(
-        "activated", new ConfigurationOption<>(true, "Should the check be active?"));
-    configuration.saveConfiguration();
-    activated = (Boolean) configuration.getConfigOption("activated").getValue();
+    this.checkConfiguration = new CheckConfiguration(name);
+    this.flagHandler = new FlagHandler(clickTracker, this);
+
+    this.activated = checkConfiguration.isActivated();
   }
 
   void load() {
@@ -45,7 +38,7 @@ public abstract class Check {
 
     loaded = true;
     onLoad();
-    configuration.loadConfig();
+    checkConfiguration.loadConfig();
   }
 
   void unload() {
@@ -56,32 +49,16 @@ public abstract class Check {
 
     loaded = false;
     onUnload();
-    saveConfiguration();
+    checkConfiguration.saveConfiguration();
   }
 
   protected List<CPS> trimList(List<CPS> set, int size) {
     return set.stream().limit(size).collect(Collectors.toList());
   }
 
-  protected Configuration getConfiguration() {
-    return configuration;
-  }
-
-  protected void saveConfiguration() {
-    configuration.saveConfiguration();
-  }
-
   protected final void onFlag(Player player) {
     log.debug("Player: {} - Flagged by {}", player.getName(), name);
-    BStatsHandler.increaseFlagged();
-    Bukkit.getScheduler()
-        .runTask(
-            AntiAC.getInstance(),
-            () ->
-                Bukkit.getPluginManager()
-                    .callEvent(
-                        new PlayerFlaggedEvent(
-                            player, clickTracker.getCPSList(player.getUniqueId()), this)));
+    flagHandler.flagPlayer(player);
   }
 
   protected abstract void onLoad();

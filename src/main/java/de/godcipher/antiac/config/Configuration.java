@@ -14,19 +14,13 @@ import org.bukkit.configuration.file.YamlConfiguration;
 public class Configuration {
 
   private final Map<String, ConfigurationOption<?>> configOptions = new LinkedHashMap<>();
+
   private File file;
   private FileConfiguration config;
 
   public void setupFile(String fileName, String filePath) {
-    if (filePath != null) {
-      File directory = new File(AntiAC.getInstance().getDataFolder(), filePath);
-      if (!directory.exists()) {
-        directory.mkdirs();
-      }
-      this.file = new File(directory, fileName);
-    } else {
-      this.file = new File(AntiAC.getInstance().getDataFolder(), fileName);
-    }
+    createDirectoryIfNeeded(filePath);
+    this.file = createFile(fileName, filePath);
     this.config = YamlConfiguration.loadConfiguration(file);
     createFiles();
   }
@@ -47,6 +41,31 @@ public class Configuration {
     config.options().copyDefaults(true);
     generateAndMergeConfig();
     loadFromConfig();
+  }
+
+  public void saveConfiguration() {
+    try {
+      config.save(file);
+    } catch (IOException e) {
+      log.error("Could not save configuration file: {}", file.getName(), e);
+    }
+  }
+
+  private void createDirectoryIfNeeded(String filePath) {
+    if (filePath != null) {
+      File directory = new File(AntiAC.getInstance().getDataFolder(), filePath);
+      if (!directory.exists()) {
+        directory.mkdirs();
+      }
+    }
+  }
+
+  private File createFile(String fileName, String filePath) {
+    if (filePath != null) {
+      return new File(new File(AntiAC.getInstance().getDataFolder(), filePath), fileName);
+    } else {
+      return new File(AntiAC.getInstance().getDataFolder(), fileName);
+    }
   }
 
   private void generateAndMergeConfig() {
@@ -84,14 +103,6 @@ public class Configuration {
         Object newValue = config.get(key);
         entry.setValue(new ConfigurationOption<>(newValue, option.getComment()));
       }
-    }
-  }
-
-  public void saveConfiguration() {
-    try {
-      config.save(file);
-    } catch (IOException e) {
-      log.error("Could not save configuration file: {}", file.getName(), e);
     }
   }
 

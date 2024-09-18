@@ -8,6 +8,7 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -19,23 +20,39 @@ public class CheckExecutionTask implements Runnable {
 
   @Override
   public void run() {
-    if (!tpsChecker.isReliable()) {
-      log.debug("TPS is not reliable, skipping check execution");
+    if (!isTPSReliable()) {
       return;
     }
 
-    for (var player : Bukkit.getOnlinePlayers()) {
-      ensureFirstCPS(player.getUniqueId());
-      checkRegistry.performChecks(player);
-      clickTracker.addNewCPS(player.getUniqueId());
+    for (Player player : Bukkit.getOnlinePlayers()) {
+      processPlayer(player);
     }
 
-    clickTracker.removeLastCPSIfExceedsLimit(); // cleanup
+    cleanupOldCPS();
   }
 
-  private void ensureFirstCPS(UUID player) {
-    if (clickTracker.getLatestCPS(player) == CPS.EMPTY) {
-      clickTracker.addNewCPS(player);
+  private boolean isTPSReliable() {
+    boolean reliable = tpsChecker.isReliable();
+    if (!reliable) {
+      log.debug("TPS is not reliable, skipping check execution");
     }
+    return reliable;
+  }
+
+  private void processPlayer(Player player) {
+    UUID playerId = player.getUniqueId();
+    ensureFirstCPS(playerId);
+    checkRegistry.performChecks(player);
+    clickTracker.addNewCPS(playerId);
+  }
+
+  private void ensureFirstCPS(UUID playerId) {
+    if (clickTracker.getLatestCPS(playerId) == CPS.EMPTY) {
+      clickTracker.addNewCPS(playerId);
+    }
+  }
+
+  private void cleanupOldCPS() {
+    clickTracker.removeLastCPSIfExceedsLimit();
   }
 }

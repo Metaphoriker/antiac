@@ -24,8 +24,8 @@ public class CPSSpanCheck extends Check {
   protected void onLoad() {
     setupDefaults();
 
-    periodInSeconds = (Integer) getConfiguration().getConfigOption("period-in-seconds").getValue();
-    span = (Integer) getConfiguration().getConfigOption("span").getValue();
+    periodInSeconds = (Integer) getCheckConfiguration().getConfigOption("period-in-seconds").getValue();
+    span = (Integer) getCheckConfiguration().getConfigOption("span").getValue();
   }
 
   @Override
@@ -68,11 +68,11 @@ public class CPSSpanCheck extends Check {
   }
 
   private void setupDefaults() {
-    getConfiguration()
+    getCheckConfiguration()
         .addConfigOption(
             "period-in-seconds",
             ConfigurationOption.ofInteger(5, "The period in seconds to check the CPS span"));
-    getConfiguration()
+    getCheckConfiguration()
         .addConfigOption("span", ConfigurationOption.ofInteger(3, "The span of the CPS span, +-"));
   }
 }

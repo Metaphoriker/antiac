@@ -25,7 +25,7 @@ public class ClickDelaySpanCheck extends Check {
   protected void onLoad() {
     setupDefaults();
 
-    span = (Integer) getConfiguration().getConfigOption("span").getValue();
+    span = (Integer) getCheckConfiguration().getConfigOption("span").getValue();
   }
 
   @Override
@@ -44,7 +44,7 @@ public class ClickDelaySpanCheck extends Check {
   }
 
   private void setupDefaults() {
-    getConfiguration()
+    getCheckConfiguration()
         .addConfigOption(
             "span", ConfigurationOption.ofInteger(5, "The span of the click delay, +-"));
   }

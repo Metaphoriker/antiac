@@ -30,7 +30,7 @@ public class AfkClickingCheck extends Check {
   protected void onLoad() {
     setupDefaults();
 
-    afkAfterSeconds = (Integer) getConfiguration().getConfigOption("afk-after-seconds").getValue();
+    afkAfterSeconds = (Integer) getCheckConfiguration().getConfigOption("afk-after-seconds").getValue();
   }
 
   @Override
@@ -83,7 +83,7 @@ public class AfkClickingCheck extends Check {
   }
 
   private void setupDefaults() {
-    getConfiguration()
+    getCheckConfiguration()
         .addConfigOption(
             "afk-after-seconds",
             new ConfigurationOption<>(10, "Number of seconds before a player is considered AFK"));

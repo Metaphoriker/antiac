@@ -30,9 +30,9 @@ public class MomentumCheck extends Check {
   protected void onLoad() {
     setupDefaults();
 
-    CPSThreshold = (Integer) getConfiguration().getConfigOption("cps-threshold").getValue();
+    CPSThreshold = (Integer) getCheckConfiguration().getConfigOption("cps-threshold").getValue();
     percentageThreshold =
-        (Integer) getConfiguration().getConfigOption("percentage-threshold").getValue();
+        (Integer) getCheckConfiguration().getConfigOption("percentage-threshold").getValue();
   }
 
   @Override
@@ -97,10 +97,10 @@ public class MomentumCheck extends Check {
   }
 
   private void setupDefaults() {
-    getConfiguration()
+    getCheckConfiguration()
         .addConfigOption(
             "cps-threshold", ConfigurationOption.ofInteger(20, "The number of CPS to check"));
-    getConfiguration()
+    getCheckConfiguration()
         .addConfigOption(
             "percentage-threshold",
             ConfigurationOption.ofInteger(75, "The maximum percentage slope to trigger on"));
