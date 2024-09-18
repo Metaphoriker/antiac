@@ -20,12 +20,18 @@ public class AFKClickingCheck extends Check {
   private static final String AFK_AFTER_SECONDS_CONFIG = "afk-after-seconds";
 
   private final Map<UUID, List<Location>> playerLocations = new HashMap<>();
-  private final Map<UUID, Long> afkMap = new HashMap<>(); // TODO: memory leaking
+  private final Map<UUID, Long> afkMap = new HashMap<>();
 
   private int afkAfterSeconds = 10;
 
   public AFKClickingCheck(ClickTracker clickTracker) {
     super(clickTracker);
+  }
+
+  @Override
+  public void handlePlayerQuit(Player player) {
+    playerLocations.remove(player.getUniqueId());
+    afkMap.remove(player.getUniqueId());
   }
 
   @Override

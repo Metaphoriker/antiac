@@ -33,6 +33,11 @@ public abstract class Check {
     this.activated = checkConfiguration.isActivated();
   }
 
+  // For cleanup when a player quits
+  public void handlePlayerQuit(Player player) {
+
+  }
+
   void load() {
     if (isLoaded() || !isActivated()) {
       log.error("Failed loading {}", name);
