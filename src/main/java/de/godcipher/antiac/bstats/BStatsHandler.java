@@ -14,7 +14,7 @@ public class BStatsHandler {
     Metrics metrics = new Metrics(javaPlugin, 6473);
     metrics.addCustomChart(
         new SingleLineChart(
-            "flagged",
+            "flagged_players",
             () -> {
               int totalFlagged = flagged;
               flagged = 0;
