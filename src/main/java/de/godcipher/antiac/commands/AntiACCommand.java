@@ -1,7 +1,10 @@
 package de.godcipher.antiac.commands;
 
 import co.aikar.commands.BaseCommand;
+import co.aikar.commands.annotation.CatchUnknown;
 import co.aikar.commands.annotation.CommandAlias;
+import co.aikar.commands.annotation.CommandCompletion;
+import co.aikar.commands.annotation.CommandPermission;
 import co.aikar.commands.annotation.Default;
 import co.aikar.commands.annotation.Description;
 import co.aikar.commands.annotation.Optional;
@@ -40,7 +43,16 @@ public class AntiACCommand extends BaseCommand {
         player, Colors.ERROR_COLOR, ERROR_TITLE, Messages.getString("command.specify_subcommand"));
   }
 
+  @CatchUnknown
+  @Description("Unknown subcommand")
+  public void onUnknown(Player player) {
+    sendTitle(
+        player, Colors.ERROR_COLOR, ERROR_TITLE, Messages.getString("command.unknown_subcommand"));
+  }
+
   @Subcommand("check")
+  @CommandCompletion("@players")
+  @CommandPermission("antiac.check")
   @Description("Check a player's CPS")
   public void onCheck(Player player, @Optional String targetName) {
     if (targetName == null) {
@@ -68,6 +80,7 @@ public class AntiACCommand extends BaseCommand {
   }
 
   @Subcommand("cancel")
+  @CommandPermission("antiac.check")
   @Description("Cancel the current check")
   public void onCancel(Player player) {
     if (!playerChecks.containsKey(player.getUniqueId())) {
