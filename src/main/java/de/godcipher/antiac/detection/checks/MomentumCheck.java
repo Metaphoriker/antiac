@@ -14,16 +14,18 @@ import org.bukkit.entity.Player;
 /**
  * MomentumCheck is a detection mechanism designed to analyze the rate of change in player click
  * patterns over a period of CPS. It measures the percentage slope (or steepness) of CPS activity to
- * detect potential irregularities.
+ * detect potential irregularities using a rolling slope method.
  */
 @Slf4j
 public class MomentumCheck extends Check {
 
   private static final String PERCENTAGE_THRESHOLD_CONFIG = "percentage-threshold";
   private static final String CPS_THRESHOLD_CONFIG = "cps-threshold";
+  private static final String WINDOW_SIZE_CONFIG = "window-size";
 
   private int CPSThreshold = -1; // Number of CPS to check
   private int percentageThreshold = -1; // Max percentage slope
+  private int windowSize = -1; // Size of each rolling window
 
   public MomentumCheck(ClickTracker clickTracker) {
     super(clickTracker);
@@ -37,6 +39,7 @@ public class MomentumCheck extends Check {
         (Integer) getCheckConfiguration().getConfigOption(CPS_THRESHOLD_CONFIG).getValue();
     percentageThreshold =
         (Integer) getCheckConfiguration().getConfigOption(PERCENTAGE_THRESHOLD_CONFIG).getValue();
+    windowSize = (Integer) getCheckConfiguration().getConfigOption(WINDOW_SIZE_CONFIG).getValue();
   }
 
   @Override
@@ -47,35 +50,59 @@ public class MomentumCheck extends Check {
     List<CPS> playerCps = clickTracker.getCPSList(player.getUniqueId());
     List<CPS> setToProcess = trimList(playerCps, CPSThreshold);
 
-    if (setToProcess.size() < CPSThreshold) {
+    if (setToProcess.size() < CPSThreshold || windowSize < 2) {
       return false;
     }
 
-    double slope = calculateSlope(setToProcess);
-    double slopePercentage = Math.abs(slope * 100); // Take absolute value to handle negative slopes
+    double rollingSlope = calculateRollingSlope(setToProcess);
+    double slopePercentage =
+        Math.abs(rollingSlope * 100); // Take absolute value to handle negative slopes
 
     return slopePercentage > percentageThreshold;
   }
 
   /**
-   * Calculate the slope based on the **average** CPS value and the time difference between the
-   * first and last valid clicks in the CPS set.
+   * Calculate the rolling slope based on a window of CPS values, and return the average slope
+   * across all windows. This reduces sensitivity to noise by averaging the slopes.
    *
    * @param cpsSet the set of CPS instances
-   * @return the calculated slope (rate of change in clicking)
+   * @return the average slope across all windows
    */
-  private double calculateSlope(List<CPS> cpsSet) {
+  private double calculateRollingSlope(List<CPS> cpsSet) {
     LinkedList<CPS> validCps =
         cpsSet.stream()
             .filter(cps -> !cps.isEmpty() && cps.getCPS() > 0)
             .collect(Collectors.toCollection(LinkedList::new));
 
-    if (validCps.isEmpty()) {
+    if (validCps.isEmpty() || validCps.size() < windowSize) {
       return 0;
     }
 
+    double totalSlope = 0;
+    int slopeCount = 0;
+
+    // Calculate the slope for each rolling window
+    for (int i = 0; i <= validCps.size() - windowSize; i++) {
+      List<CPS> window = validCps.subList(i, i + windowSize);
+      double slope = calculateSlope(window);
+      totalSlope += slope;
+      slopeCount++;
+    }
+
+    // Return the average slope across all windows to reduce noise
+    return totalSlope / slopeCount;
+  }
+
+  /**
+   * Calculate the slope based on the average CPS value and the time difference between the first
+   * and last valid clicks in the CPS window.
+   *
+   * @param cpsWindow the window of CPS instances
+   * @return the calculated slope (rate of change in clicking)
+   */
+  private double calculateSlope(List<CPS> cpsWindow) {
     LinkedList<Long> timestamps =
-        validCps.stream()
+        cpsWindow.stream()
             .flatMap(cps -> cps.getClicks().stream())
             .map(Click::getTime)
             .sorted()
@@ -94,8 +121,8 @@ public class MomentumCheck extends Check {
       return 0;
     }
 
-    int initialCPS = validCps.getFirst().getCPS();
-    double averageCPS = validCps.stream().mapToInt(CPS::getCPS).average().orElse(0);
+    int initialCPS = cpsWindow.getFirst().getCPS();
+    double averageCPS = cpsWindow.stream().mapToInt(CPS::getCPS).average().orElse(0);
 
     return (averageCPS - initialCPS) / timeSpan;
   }
@@ -108,5 +135,9 @@ public class MomentumCheck extends Check {
         .addConfigOption(
             PERCENTAGE_THRESHOLD_CONFIG,
             ConfigurationOption.ofInteger(75, "The maximum percentage slope to trigger on"));
+    getCheckConfiguration()
+        .addConfigOption(
+            WINDOW_SIZE_CONFIG,
+            ConfigurationOption.ofInteger(5, "The window size for rolling slope calculation"));
   }
 }
