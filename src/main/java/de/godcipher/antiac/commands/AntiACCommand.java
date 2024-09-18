@@ -141,7 +141,7 @@ public class AntiACCommand extends BaseCommand {
     }
 
     // Footer
-    TextComponent footer = createFooter("⬢ " + "—".repeat(8) + " ⬢");
+    TextComponent footer = createFooter("⬢ " + "—".repeat(18) + " ⬢");
     player.spigot().sendMessage(footer);
   }
 
@@ -282,7 +282,7 @@ public class AntiACCommand extends BaseCommand {
   private TextComponent createFooter(String text) {
     TextComponent footer = new TextComponent(text);
     footer.setColor(Colors.PURPLE_MAUVE_COLOR);
-    footer.setText(" ".repeat(10) + footer.getText() + " ".repeat(10)); // Add padding for centering
+    footer.setText(footer.getText());
     return footer;
   }
 
