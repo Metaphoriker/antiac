@@ -61,16 +61,6 @@ public class Messages {
     return PROPERTIES.getProperty(key);
   }
 
-  public static void setString(String key, String value) {
-    PROPERTIES.setProperty(key, value);
-    saveProperties();
-  }
-
-  public static void removeString(String key) {
-    PROPERTIES.remove(key);
-    saveProperties();
-  }
-
   public static void migrate() {
     Properties newProperties = new Properties();
     try (InputStream defaultPropertiesStream =
