@@ -12,6 +12,7 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
@@ -23,6 +24,11 @@ import org.jetbrains.annotations.Nullable;
 @RequiredArgsConstructor
 public class AntiACCommand implements TabExecutor {
 
+  private static final String ERROR_COLOR = "#866E84"; // Purple Mauve
+  private static final String SUCCESS_COLOR = "#727459"; // Pine Green
+  private static final String ERROR_TITLE = "Error";
+  private static final String SUCCESS_TITLE = "✔";
+
   private final List<String> subCommands = List.of("check", "cancel");
   private final Map<UUID, UUID> playerChecks = new HashMap<>();
   private final ClickTracker clickTracker;
@@ -31,7 +37,7 @@ public class AntiACCommand implements TabExecutor {
   public boolean onCommand(
       @NotNull CommandSender commandSender,
       @NotNull Command command,
-      @NotNull String s,
+      @NotNull String label,
       @NotNull String[] args) {
     if (!(commandSender instanceof Player)) {
       commandSender.sendMessage(Messages.getString("command.only_player"));
@@ -41,7 +47,7 @@ public class AntiACCommand implements TabExecutor {
     Player player = (Player) commandSender;
 
     if (args.length == 0) {
-      player.sendMessage(Messages.getString("command.specify_subcommand"));
+      sendTitle(player, ERROR_COLOR, ERROR_TITLE, Messages.getString("command.specify_subcommand"));
       return true;
     }
 
@@ -50,7 +56,10 @@ public class AntiACCommand implements TabExecutor {
       case "check" -> handleCheckCommand(player, args);
       case "cancel" -> handleCancelCommand(player);
       default -> {
-        player.sendMessage(
+        sendTitle(
+            player,
+            ERROR_COLOR,
+            ERROR_TITLE,
             MessageFormat.format(
                 Messages.getString("command.unknown_subcommand"), String.join(", ", subCommands)));
         yield true;
@@ -60,19 +69,20 @@ public class AntiACCommand implements TabExecutor {
 
   private boolean handleCheckCommand(Player player, String[] args) {
     if (args.length < 2) {
-      player.sendMessage(Messages.getString("command.check.specify_player"));
+      sendTitle(
+          player, ERROR_COLOR, ERROR_TITLE, Messages.getString("command.check.specify_player"));
       return true;
     }
 
     Player target = player.getServer().getPlayer(args[1]);
     if (target == null) {
-      player.sendMessage(Messages.getString("command.check.player_not_found"));
+      sendTitle(
+          player, ERROR_COLOR, ERROR_TITLE, Messages.getString("command.check.player_not_found"));
       return true;
     }
 
     playerChecks.put(player.getUniqueId(), target.getUniqueId());
-    player.sendMessage(
-        MessageFormat.format(Messages.getString("command.check.now_checking"), target.getName()));
+    sendTitle(player, SUCCESS_COLOR, SUCCESS_TITLE, "");
     startCheckTask(player, target);
     return true;
   }
@@ -100,12 +110,13 @@ public class AntiACCommand implements TabExecutor {
 
   private boolean handleCancelCommand(Player player) {
     if (!playerChecks.containsKey(player.getUniqueId())) {
-      player.sendMessage(Messages.getString("command.cancel.not_checking"));
+      sendTitle(
+          player, ERROR_COLOR, ERROR_TITLE, Messages.getString("command.cancel.not_checking"));
       return true;
     }
 
     playerChecks.remove(player.getUniqueId());
-    player.sendMessage(Messages.getString("command.cancel.canceled"));
+    sendTitle(player, SUCCESS_COLOR, SUCCESS_TITLE, "");
     return true;
   }
 
@@ -113,8 +124,19 @@ public class AntiACCommand implements TabExecutor {
   public @Nullable List<String> onTabComplete(
       @NotNull CommandSender commandSender,
       @NotNull Command command,
-      @NotNull String s,
-      @NotNull String[] strings) {
-    return subCommands;
+      @NotNull String alias,
+      @NotNull String[] args) {
+    if (args.length == 1) {
+      return subCommands;
+    } else {
+      return Bukkit.getOnlinePlayers().stream()
+          .map(Player::getName)
+          .filter(name -> name.toLowerCase().startsWith(args[1].toLowerCase()))
+          .toList();
+    }
+  }
+
+  private void sendTitle(Player player, String color, String title, String subtitle) {
+    player.sendTitle(net.md_5.bungee.api.ChatColor.of(color) + title, "§7" + subtitle, 10, 70, 20);
   }
 }
