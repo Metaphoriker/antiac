@@ -113,8 +113,9 @@ public final class AntiAC extends JavaPlugin {
     configuration.addConfigOption(
         "violations", new ConfigurationOption<>(true, "Enable violation-based actions"));
     configuration.addConfigOption(
-        "max-violations",
-        new ConfigurationOption<>(8, "Maximum amount of violations until the player gets flagged"));
+        "max-allowed-violations",
+        new ConfigurationOption<>(
+            8, "Maximum amount of violations allowed until the player gets flagged"));
     configuration.addConfigOption(
         "bedrock-players",
         new ConfigurationOption<>(false, "Whether the server allows bedrock players"));

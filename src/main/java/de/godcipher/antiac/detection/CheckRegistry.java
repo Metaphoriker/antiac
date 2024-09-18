@@ -59,6 +59,6 @@ public class CheckRegistry {
   }
 
   private int getMaxViolations() {
-    return (Integer) configuration.getConfigOption("max-violations").getValue();
+    return (Integer) configuration.getConfigOption("max-allowed-violations").getValue();
   }
 }
