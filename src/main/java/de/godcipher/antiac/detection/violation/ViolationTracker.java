@@ -1,21 +1,21 @@
 package de.godcipher.antiac.detection.violation;
 
 import java.time.Instant;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ViolationTracker {
 
-  private final Map<UUID, Violation> violations = new HashMap<>();
+  private final Map<UUID, Violation> violations = new ConcurrentHashMap<>();
 
-  public void addViolation(UUID playerId) {
+  public synchronized void addViolation(UUID playerId) {
     Violation violation = violations.getOrDefault(playerId, new Violation());
     violation.incrementCount();
     violations.put(playerId, violation);
   }
 
-  public void resetViolation(UUID playerId) {
+  public synchronized void resetViolation(UUID playerId) {
     violations.remove(playerId);
   }
 
@@ -29,7 +29,7 @@ public class ViolationTracker {
     return violation != null ? violation.getLastModified() : null;
   }
 
-  public void removePlayer(UUID playerId) {
+  public synchronized void removePlayer(UUID playerId) {
     violations.remove(playerId);
   }
 
@@ -38,11 +38,11 @@ public class ViolationTracker {
     return violation != null && violation.getCount() > 0;
   }
 
-  public void clearAllViolations() {
+  public synchronized void clearAllViolations() {
     violations.clear();
   }
 
   public Map<UUID, Violation> getAllViolations() {
-    return new HashMap<>(violations);
+    return new ConcurrentHashMap<>(violations);
   }
 }

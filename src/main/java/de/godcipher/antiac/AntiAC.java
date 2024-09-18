@@ -23,6 +23,7 @@ import de.godcipher.antiac.listener.bukkit.PlayerQuitListener;
 import de.godcipher.antiac.listener.protocol.PlayerDiggingPacketListener;
 import de.godcipher.antiac.listener.protocol.PlayerInteractWithEntityPacketListener;
 import de.godcipher.antiac.tasks.CheckExecutionTask;
+import de.godcipher.antiac.tasks.ClearViolationsTask;
 import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder;
 import java.util.Arrays;
 import java.util.List;
@@ -62,7 +63,7 @@ public final class AntiAC extends JavaPlugin {
     registerCommands();
     registerBukkitListener();
     registerPacketListener();
-    runCheckExecutionScheduler();
+    runTasks();
     printRegisteredChecksAmount();
   }
 
@@ -129,11 +130,15 @@ public final class AntiAC extends JavaPlugin {
     log.info("Registered {} checks", checkRegistry.getChecks().size());
   }
 
-  private void runCheckExecutionScheduler() {
+  private void runTasks() {
     getServer()
         .getScheduler()
         .runTaskTimerAsynchronously(
             this, new CheckExecutionTask(clickTracker, checkRegistry, tpsChecker), 0, 20);
+    getServer()
+        .getScheduler()
+        .runTaskTimerAsynchronously(
+            this, new ClearViolationsTask(violationTracker), 0, 20 * 60); // 1 minute
   }
 
   private void registerChecks() {
