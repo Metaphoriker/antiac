@@ -21,7 +21,6 @@ import de.godcipher.antiac.detection.checks.MomentumCheck;
 import de.godcipher.antiac.detection.checks.ScaledCPSCheck;
 import de.godcipher.antiac.detection.reliability.TPSChecker;
 import de.godcipher.antiac.detection.violation.ViolationTracker;
-import de.godcipher.antiac.listener.bukkit.PlayerFlaggedListener;
 import de.godcipher.antiac.listener.bukkit.PlayerQuitListener;
 import de.godcipher.antiac.listener.protocol.PlayerDiggingPacketListener;
 import de.godcipher.antiac.listener.protocol.PlayerInteractWithEntityPacketListener;
@@ -185,7 +184,6 @@ public final class AntiAC extends JavaPlugin {
 
   private void registerBukkitListener() {
     getServer().getPluginManager().registerEvents(new PlayerQuitListener(clickTracker), this);
-    getServer().getPluginManager().registerEvents(new PlayerFlaggedListener(configuration), this);
   }
 
   private void setupPacketEvents() {
