@@ -6,9 +6,11 @@ import de.godcipher.antiac.click.Click;
 import de.godcipher.antiac.click.ClickTracker;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.bukkit.entity.Player;
 
 @RequiredArgsConstructor
+@Slf4j
 public abstract class BasePlayerPacketListener implements PacketListener {
 
   protected final ClickTracker clickTracker;
@@ -27,8 +29,7 @@ public abstract class BasePlayerPacketListener implements PacketListener {
     }
 
     clickTracker.addClick(player.getUniqueId(), new Click(now, delay));
-
-    System.out.println("Click registered for " + player.getName() + " with delay " + delay + " ms");
+    log.debug("Player: {} - Click registered with delay: {}", player.getName(), delay);
   }
 
   /**
