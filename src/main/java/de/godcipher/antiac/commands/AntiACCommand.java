@@ -120,19 +120,12 @@ public class AntiACCommand extends BaseCommand {
                   + Colors.ROSEWOOD_RED_COLOR
                   + violationTracker.getViolationCount(target.getUniqueId());
 
-          StringBuilder message = new StringBuilder();
-          message
-              .append(cpsPart)
-              .append(separator)
-              .append(maxCpsPart)
-              .append(Colors.SEPARATOR_COLOR)
-              .append(" - ")
-              .append(violationPart);
+          String message =
+              cpsPart + separator + maxCpsPart + Colors.SEPARATOR_COLOR + " - " + violationPart;
 
           player
               .spigot()
-              .sendMessage(
-                  ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(message.toString()));
+              .sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(message));
         } else {
           cancel();
         }
