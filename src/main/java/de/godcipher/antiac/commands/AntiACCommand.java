@@ -114,7 +114,7 @@ public class AntiACCommand extends BaseCommand {
     TextComponent header = createHeader("⬢ AntiAC Checks ⬢");
     player.spigot().sendMessage(header);
 
-    List<Check> sortedChecksByName = getSortedChecksByName();
+    List<Check> sortedChecksByName = getSortedChecks();
     for (Check check : sortedChecksByName) {
       TextComponent message = createCheckMessage(check);
       player.spigot().sendMessage(message);
@@ -255,9 +255,22 @@ public class AntiACCommand extends BaseCommand {
     return footer;
   }
 
-  private List<Check> getSortedChecksByName() {
+  /**
+   * Get a sorted list of checks by name. Deactivated checks are always last.
+   *
+   * @return a sorted list of checks
+   */
+  private List<Check> getSortedChecks() {
     return AntiAC.getInstance().getCheckRegistry().getChecks().stream()
-        .sorted((c1, c2) -> c1.getName().compareToIgnoreCase(c2.getName()))
+        .sorted(
+            (check1, check2) -> {
+              if (check1.isActivated() && !check2.isActivated()) {
+                return -1;
+              } else if (!check1.isActivated() && check2.isActivated()) {
+                return 1;
+              }
+              return check1.getName().compareTo(check2.getName()); // Sort by name
+            })
         .toList();
   }
 
