@@ -9,6 +9,8 @@ import de.godcipher.antiac.detection.Check;
 import de.godcipher.antiac.detection.violation.ViolationTracker;
 import de.godcipher.antiac.messages.Colors;
 import de.godcipher.antiac.messages.Messages;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -218,10 +220,8 @@ public class AntiACCommand extends BaseCommand {
   }
 
   private CPS getPreviousCPS(UUID playerId) {
-    return clickTracker.getCPSList(playerId).stream()
-        .skip(Math.max(0, clickTracker.getCPSList(playerId).size() - 2))
-        .findFirst()
-        .orElse(CPS.EMPTY);
+    List<CPS> cpsList = new ArrayList<>(clickTracker.getCPSList(playerId));
+    return cpsList.stream().skip(Math.max(0, cpsList.size() - 2)).findFirst().orElse(CPS.EMPTY);
   }
 
   private void sendTitle(Player player, ChatColor chatColor, String title, String subtitle) {
