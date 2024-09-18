@@ -40,7 +40,10 @@ public final class AntiAC extends JavaPlugin {
 
   @Getter private static AntiAC instance;
 
-  private final Configuration configuration = new Configuration();
+  @Getter
+  private final Configuration configuration =
+      new Configuration(); // do we really want to share this?
+
   private final TPSChecker tpsChecker = new TPSChecker(configuration);
 
   @Getter private final ClickTracker clickTracker = new ClickTracker(configuration);

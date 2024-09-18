@@ -4,6 +4,7 @@ import de.godcipher.antiac.click.CPS;
 import de.godcipher.antiac.click.ClickTracker;
 import java.util.List;
 import java.util.stream.Collectors;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +15,7 @@ public abstract class Check {
 
   @Getter private final String name;
   @Getter private final CheckConfiguration checkConfiguration;
+
   private final FlagHandler flagHandler;
 
   protected final ClickTracker clickTracker;

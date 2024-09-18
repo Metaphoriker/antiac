@@ -3,7 +3,6 @@ package de.godcipher.antiac.detection;
 import de.godcipher.antiac.AntiAC;
 import de.godcipher.antiac.bstats.BStatsHandler;
 import de.godcipher.antiac.click.ClickTracker;
-import de.godcipher.antiac.config.Configuration;
 import de.godcipher.antiac.event.PlayerFlaggedEvent;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +13,6 @@ import org.bukkit.entity.Player;
 public class FlagHandler {
 
   private final ClickTracker clickTracker;
-  private final Configuration configuration;
   private final Check check;
 
   public void flagPlayer(Player player) {
@@ -32,7 +30,9 @@ public class FlagHandler {
   }
 
   public void handleFlag(Player player) {
-    List<String> commands = (List<String>) configuration.getConfigOption("commands").getValue();
+    List<String> commands =
+        (List<String>)
+            AntiAC.getInstance().getConfiguration().getConfigOption("commands").getValue();
 
     if (commands.isEmpty()) {
       return;
