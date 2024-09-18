@@ -4,6 +4,7 @@ import de.godcipher.antiac.AntiAC;
 import de.godcipher.antiac.click.CPS;
 import de.godcipher.antiac.click.ClickTracker;
 import de.godcipher.antiac.detection.violation.ViolationTracker;
+import de.godcipher.antiac.messages.Colors;
 import de.godcipher.antiac.messages.Messages;
 import java.text.MessageFormat;
 import java.util.HashMap;
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
@@ -25,12 +27,6 @@ import org.jetbrains.annotations.Nullable;
 @RequiredArgsConstructor
 public class AntiACCommand implements TabExecutor {
 
-  private static final String ERROR_COLOR = "#866E84"; // Purple Mauve
-  private static final String SUCCESS_COLOR = "#727459"; // Pine Green
-  private static final String BRASS_YELLOW_COLOR = "#B5A642"; // Brass Yellow
-  private static final String COPPER_ORANGE_COLOR = "#C77F4F"; // Copper Orange
-  private static final String SLATE_GRAY_COLOR = "#6E6E6D"; // Slate Gray
-  private static final String ROSEWOOD_RED_COLOR = "#A65257"; // Rosewood Red
   private static final String ERROR_TITLE = "Error";
   private static final String SUCCESS_TITLE = "✔";
 
@@ -54,7 +50,11 @@ public class AntiACCommand implements TabExecutor {
     Player player = (Player) commandSender;
 
     if (args.length == 0) {
-      sendTitle(player, ERROR_COLOR, ERROR_TITLE, Messages.getString("command.specify_subcommand"));
+      sendTitle(
+          player,
+          Colors.ERROR_COLOR,
+          ERROR_TITLE,
+          Messages.getString("command.specify_subcommand"));
       return true;
     }
 
@@ -65,7 +65,7 @@ public class AntiACCommand implements TabExecutor {
       default -> {
         sendTitle(
             player,
-            ERROR_COLOR,
+            Colors.ERROR_COLOR,
             ERROR_TITLE,
             MessageFormat.format(
                 Messages.getString("command.unknown_subcommand"), String.join(", ", subCommands)));
@@ -77,19 +77,25 @@ public class AntiACCommand implements TabExecutor {
   private boolean handleCheckCommand(Player player, String[] args) {
     if (args.length < 2) {
       sendTitle(
-          player, ERROR_COLOR, ERROR_TITLE, Messages.getString("command.check.specify_player"));
+          player,
+          Colors.ERROR_COLOR,
+          ERROR_TITLE,
+          Messages.getString("command.check.specify_player"));
       return true;
     }
 
     Player target = player.getServer().getPlayer(args[1]);
     if (target == null) {
       sendTitle(
-          player, ERROR_COLOR, ERROR_TITLE, Messages.getString("command.check.player_not_found"));
+          player,
+          Colors.ERROR_COLOR,
+          ERROR_TITLE,
+          Messages.getString("command.check.player_not_found"));
       return true;
     }
 
     playerChecks.put(player.getUniqueId(), target.getUniqueId());
-    sendTitle(player, SUCCESS_COLOR, SUCCESS_TITLE, "");
+    sendTitle(player, Colors.SUCCESS_COLOR, SUCCESS_TITLE, "");
     startCheckTask(player, target);
     return true;
   }
@@ -109,13 +115,13 @@ public class AntiACCommand implements TabExecutor {
 
           maxCPS = Math.max(maxCPS, cps.getCPS());
 
-          String cpsPart = net.md_5.bungee.api.ChatColor.of(BRASS_YELLOW_COLOR) + "" + cps;
-          String separator = net.md_5.bungee.api.ChatColor.of(SUCCESS_COLOR) + " | ";
-          String maxCpsPart = net.md_5.bungee.api.ChatColor.of(COPPER_ORANGE_COLOR) + "" + maxCPS;
+          String cpsPart = Colors.BRASS_YELLOW_COLOR + "" + cps;
+          String separator = Colors.SEPARATOR_COLOR + " | ";
+          String maxCpsPart = Colors.COPPER_ORANGE_COLOR + "" + maxCPS;
           String violationPart =
-              net.md_5.bungee.api.ChatColor.of(SLATE_GRAY_COLOR)
+              Colors.SLATE_GRAY_COLOR
                   + "Violations: "
-                  + net.md_5.bungee.api.ChatColor.of(ROSEWOOD_RED_COLOR)
+                  + Colors.ROSEWOOD_RED_COLOR
                   + violationTracker.getViolationCount(target.getUniqueId());
 
           StringBuilder message = new StringBuilder();
@@ -123,7 +129,7 @@ public class AntiACCommand implements TabExecutor {
               .append(cpsPart)
               .append(separator)
               .append(maxCpsPart)
-              .append(net.md_5.bungee.api.ChatColor.of(ROSEWOOD_RED_COLOR))
+              .append(Colors.SEPARATOR_COLOR)
               .append(" - ")
               .append(violationPart);
 
@@ -146,12 +152,15 @@ public class AntiACCommand implements TabExecutor {
   private boolean handleCancelCommand(Player player) {
     if (!playerChecks.containsKey(player.getUniqueId())) {
       sendTitle(
-          player, ERROR_COLOR, ERROR_TITLE, Messages.getString("command.cancel.not_checking"));
+          player,
+          Colors.ERROR_COLOR,
+          ERROR_TITLE,
+          Messages.getString("command.cancel.not_checking"));
       return true;
     }
 
     playerChecks.remove(player.getUniqueId());
-    sendTitle(player, SUCCESS_COLOR, SUCCESS_TITLE, "");
+    sendTitle(player, Colors.SUCCESS_COLOR, SUCCESS_TITLE, "");
     return true;
   }
 
@@ -171,7 +180,7 @@ public class AntiACCommand implements TabExecutor {
     }
   }
 
-  private void sendTitle(Player player, String color, String title, String subtitle) {
-    player.sendTitle(net.md_5.bungee.api.ChatColor.of(color) + title, "§7" + subtitle, 10, 70, 20);
+  private void sendTitle(Player player, ChatColor chatColor, String title, String subtitle) {
+    player.sendTitle(chatColor + title, "§7" + subtitle, 10, 70, 20);
   }
 }
