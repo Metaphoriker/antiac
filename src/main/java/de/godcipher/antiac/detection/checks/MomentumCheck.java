@@ -1,10 +1,10 @@
 package de.godcipher.antiac.detection.checks;
 
-import de.godcipher.antiac.config.ConfigurationOption;
-import de.godcipher.antiac.detection.Check;
 import de.godcipher.antiac.click.CPS;
 import de.godcipher.antiac.click.Click;
 import de.godcipher.antiac.click.ClickTracker;
+import de.godcipher.antiac.config.ConfigurationOption;
+import de.godcipher.antiac.detection.Check;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,6 +19,9 @@ import org.bukkit.entity.Player;
 @Slf4j
 public class MomentumCheck extends Check {
 
+  private static final String PERCENTAGE_THRESHOLD_CONFIG = "percentage-threshold";
+  private static final String CPS_THRESHOLD_CONFIG = "cps-threshold";
+
   private int CPSThreshold = -1; // Number of CPS to check
   private int percentageThreshold = -1; // Max percentage slope
 
@@ -30,9 +33,10 @@ public class MomentumCheck extends Check {
   protected void onLoad() {
     setupDefaults();
 
-    CPSThreshold = (Integer) getCheckConfiguration().getConfigOption("cps-threshold").getValue();
+    CPSThreshold =
+        (Integer) getCheckConfiguration().getConfigOption(CPS_THRESHOLD_CONFIG).getValue();
     percentageThreshold =
-        (Integer) getCheckConfiguration().getConfigOption("percentage-threshold").getValue();
+        (Integer) getCheckConfiguration().getConfigOption(PERCENTAGE_THRESHOLD_CONFIG).getValue();
   }
 
   @Override
@@ -99,10 +103,10 @@ public class MomentumCheck extends Check {
   private void setupDefaults() {
     getCheckConfiguration()
         .addConfigOption(
-            "cps-threshold", ConfigurationOption.ofInteger(20, "The number of CPS to check"));
+            CPS_THRESHOLD_CONFIG, ConfigurationOption.ofInteger(20, "The number of CPS to check"));
     getCheckConfiguration()
         .addConfigOption(
-            "percentage-threshold",
+            PERCENTAGE_THRESHOLD_CONFIG,
             ConfigurationOption.ofInteger(75, "The maximum percentage slope to trigger on"));
   }
 }

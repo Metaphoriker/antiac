@@ -1,9 +1,9 @@
 package de.godcipher.antiac.detection.checks;
 
-import de.godcipher.antiac.config.ConfigurationOption;
-import de.godcipher.antiac.detection.Check;
 import de.godcipher.antiac.click.CPS;
 import de.godcipher.antiac.click.ClickTracker;
+import de.godcipher.antiac.config.ConfigurationOption;
+import de.godcipher.antiac.detection.Check;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,6 +16,8 @@ import org.bukkit.entity.Player;
 /** AfkClickingCheck checks for players that are clicking while being AFK. */
 @Slf4j
 public class AfkClickingCheck extends Check {
+
+  private static final String AFK_AFTER_SECONDS_CONFIG = "afk-after-seconds";
 
   private final Map<UUID, List<Location>> playerLocations = new HashMap<>();
   private final Map<UUID, Long> afkMap = new HashMap<>(); // TODO: memory leaking
@@ -30,7 +32,8 @@ public class AfkClickingCheck extends Check {
   protected void onLoad() {
     setupDefaults();
 
-    afkAfterSeconds = (Integer) getCheckConfiguration().getConfigOption("afk-after-seconds").getValue();
+    afkAfterSeconds =
+        (Integer) getCheckConfiguration().getConfigOption(AFK_AFTER_SECONDS_CONFIG).getValue();
   }
 
   @Override
@@ -85,7 +88,7 @@ public class AfkClickingCheck extends Check {
   private void setupDefaults() {
     getCheckConfiguration()
         .addConfigOption(
-            "afk-after-seconds",
+            AFK_AFTER_SECONDS_CONFIG,
             new ConfigurationOption<>(10, "Number of seconds before a player is considered AFK"));
   }
 }

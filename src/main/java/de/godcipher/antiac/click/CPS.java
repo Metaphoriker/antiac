@@ -25,6 +25,16 @@ public class CPS {
     return clickSet.size();
   }
 
+  public double getAverageDelay() {
+    if (clickSet.size() < 2) return 0.0;
+
+    long totalDelay = 0;
+    for (int i = 1; i < clickSet.size(); i++) {
+      totalDelay += clickSet.get(i).getTime() - clickSet.get(i - 1).getTime();
+    }
+    return (double) totalDelay / (clickSet.size() - 1);
+  }
+
   public boolean isEmpty() {
     return clickSet.isEmpty();
   }

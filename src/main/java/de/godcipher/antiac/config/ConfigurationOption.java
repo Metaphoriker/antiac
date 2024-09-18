@@ -10,6 +10,10 @@ public class ConfigurationOption<T> {
     return new ConfigurationOption<>(value, comment);
   }
 
+  public static ConfigurationOption<Double> ofDouble(double value, String comment) {
+    return new ConfigurationOption<>(value, comment);
+  }
+
   public static ConfigurationOption<Boolean> ofBoolean(boolean value, String comment) {
     return new ConfigurationOption<>(value, comment);
   }

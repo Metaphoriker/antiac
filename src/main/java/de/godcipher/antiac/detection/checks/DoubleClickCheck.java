@@ -16,6 +16,9 @@ import org.bukkit.entity.Player;
 @Slf4j
 public class DoubleClickCheck extends Check {
 
+  private static final String REQUIRED_CONSECUTIVE_SUSPICIOUS_CLICKS_CONFIG =
+      "required-consecutive-suspicious-clicks";
+
   private int requiredConsecutiveSuspiciousClicks = 3;
 
   public DoubleClickCheck(ClickTracker clickTracker) {
@@ -29,7 +32,7 @@ public class DoubleClickCheck extends Check {
     requiredConsecutiveSuspiciousClicks =
         (Integer)
             getCheckConfiguration()
-                .getConfigOption("required-consecutive-suspicious-clicks")
+                .getConfigOption(REQUIRED_CONSECUTIVE_SUSPICIOUS_CLICKS_CONFIG)
                 .getValue();
   }
 
@@ -69,7 +72,7 @@ public class DoubleClickCheck extends Check {
   private void setupDefaults() {
     getCheckConfiguration()
         .addConfigOption(
-            "required-consecutive-suspicious-clicks",
+            REQUIRED_CONSECUTIVE_SUSPICIOUS_CLICKS_CONFIG,
             ConfigurationOption.ofInteger(
                 3, "The number of consecutive suspicious clicks required to flag"));
   }
