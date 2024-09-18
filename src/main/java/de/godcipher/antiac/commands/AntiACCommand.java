@@ -266,7 +266,7 @@ public class AntiACCommand extends BaseCommand {
     message.setColor(Colors.SEPARATOR_COLOR);
 
     TextComponent checkName = new TextComponent(formatCheckName(check.getName()));
-    checkName.setColor(check.isActivated() ? Colors.SUNSET_ORANGE_COLOR : Colors.SLATE_GRAY_COLOR);
+    checkName.setColor(check.isActivated() ? Colors.SLATE_GRAY_COLOR : Colors.SUNSET_ORANGE_COLOR);
 
     TextComponent activateButton =
         createButton(
