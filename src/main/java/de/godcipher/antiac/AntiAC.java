@@ -220,7 +220,7 @@ public final class AntiAC extends JavaPlugin {
     PacketEvents.getAPI()
         .getSettings()
         .debug(false)
-        .checkForUpdates(true)
+        .checkForUpdates(false)
         .timeStampMode(TimeStampMode.MILLIS)
         .reEncodeByDefault(true);
     PacketEvents.getAPI().init();
