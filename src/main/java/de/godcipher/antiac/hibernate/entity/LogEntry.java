@@ -1,5 +1,6 @@
 package de.godcipher.antiac.hibernate.entity;
 
+import de.godcipher.antiac.click.ClickType;
 import java.util.UUID;
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -28,8 +29,18 @@ public class LogEntry {
   @Column(nullable = false)
   private final String checkName;
 
-  public LogEntry(UUID uuid, String checkName) {
+  @Basic
+  @Column(nullable = false)
+  private final int lastCPS;
+
+  @Basic
+  @Column(nullable = false)
+  private final ClickType averageClickType;
+
+  public LogEntry(UUID uuid, String checkName, int lastCPS, ClickType averageClickType) {
     this.uuid = uuid;
     this.checkName = checkName;
+    this.lastCPS = lastCPS;
+    this.averageClickType = averageClickType;
   }
 }

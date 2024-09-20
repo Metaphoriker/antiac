@@ -15,7 +15,7 @@ public class PlayerDiggingPacketListener extends BasePlayerPacketListener {
   public void onPacketReceive(PacketReceiveEvent event) {
     if (event.getPacketType() == PacketType.Play.Client.PLAYER_DIGGING) {
       Player player = (Player) event.getPlayer();
-      handleClick(player);
+      // handleClick(player);
     }
   }
 }

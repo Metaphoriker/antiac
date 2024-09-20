@@ -4,6 +4,7 @@ import com.github.retrooper.packetevents.event.PacketListener;
 import de.godcipher.antiac.click.CPS;
 import de.godcipher.antiac.click.Click;
 import de.godcipher.antiac.click.ClickTracker;
+import de.godcipher.antiac.click.ClickType;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +16,7 @@ public abstract class BasePlayerPacketListener implements PacketListener {
 
   protected final ClickTracker clickTracker;
 
-  protected void handleClick(Player player) {
+  protected void handleClick(Player player, ClickType clickType) {
     long now = System.currentTimeMillis();
 
     Click lastClick = findLastValidClick(player);
@@ -28,7 +29,7 @@ public abstract class BasePlayerPacketListener implements PacketListener {
       delay = now - lastClick.getTime();
     }
 
-    clickTracker.addClick(player.getUniqueId(), new Click(now, delay));
+    clickTracker.addClick(player.getUniqueId(), new Click(now, delay, clickType));
     log.debug("Player: {} - Click registered with delay: {}", player.getName(), delay);
   }
 

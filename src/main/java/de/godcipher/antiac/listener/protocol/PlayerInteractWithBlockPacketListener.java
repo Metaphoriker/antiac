@@ -15,7 +15,7 @@ public class PlayerInteractWithBlockPacketListener extends BasePlayerPacketListe
   public void onPacketReceive(PacketReceiveEvent event) {
     if (event.getPacketType() == PacketType.Play.Client.PLAYER_BLOCK_PLACEMENT) {
       Player player = (Player) event.getPlayer();
-      handleClick(player);
+      // handleClick(player);
     }
   }
 }

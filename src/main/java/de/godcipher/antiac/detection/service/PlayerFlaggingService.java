@@ -2,11 +2,15 @@ package de.godcipher.antiac.detection.service;
 
 import de.godcipher.antiac.AntiAC;
 import de.godcipher.antiac.bstats.BStatsHandler;
+import de.godcipher.antiac.click.CPS;
+import de.godcipher.antiac.click.Click;
 import de.godcipher.antiac.click.ClickTracker;
+import de.godcipher.antiac.click.ClickType;
 import de.godcipher.antiac.detection.Check;
 import de.godcipher.antiac.event.PlayerFlaggedEvent;
 import de.godcipher.antiac.hibernate.entity.LogEntry;
 import de.godcipher.antiac.hibernate.repository.impl.LogEntryRepositoryImpl;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -64,8 +68,24 @@ public class PlayerFlaggingService {
   private void logFlag(Player player) {
     UUID playerUuid = player.getUniqueId();
     String checkName = check.getName();
-    LogEntry logEntry = new LogEntry(playerUuid, checkName);
+    CPS latestCPS = clickTracker.getLatestCPS(playerUuid);
+    LogEntry logEntry =
+        new LogEntry(playerUuid, checkName, latestCPS.getCPS(), getAverageClickType(latestCPS));
     Bukkit.getScheduler()
         .runTaskAsynchronously(AntiAC.getInstance(), () -> logEntryRepository.save(logEntry));
+  }
+
+  private ClickType getAverageClickType(CPS cps) {
+    List<ClickType> clickTypes = new ArrayList<>();
+    cps.getClicks().stream().map(Click::getClickType).forEach(clickTypes::add);
+
+    return clickTypes.stream()
+        .max(
+            (clickType1, clickType2) -> {
+              int count1 = (int) clickTypes.stream().filter(type -> type == clickType1).count();
+              int count2 = (int) clickTypes.stream().filter(type -> type == clickType2).count();
+              return Integer.compare(count1, count2);
+            })
+        .orElse(null);
   }
 }
