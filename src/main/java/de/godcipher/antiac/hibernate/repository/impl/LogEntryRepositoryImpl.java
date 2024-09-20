@@ -4,9 +4,11 @@ import de.godcipher.antiac.hibernate.HibernateUtil;
 import de.godcipher.antiac.hibernate.entity.LogEntry;
 import de.godcipher.antiac.hibernate.repository.LogEntryRepository;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
+@Slf4j
 public class LogEntryRepositoryImpl implements LogEntryRepository {
 
   @Override
@@ -14,13 +16,13 @@ public class LogEntryRepositoryImpl implements LogEntryRepository {
     Transaction transaction = null;
     try (Session session = HibernateUtil.getSessionFactory().openSession()) {
       transaction = session.beginTransaction();
-      session.saveOrUpdate(logEntry);
+      session.merge(logEntry);
       transaction.commit();
     } catch (Exception e) {
       if (transaction != null) {
         transaction.rollback();
       }
-      e.printStackTrace();
+      log.error("Failed to save log entry", e);
     }
   }
 
@@ -34,7 +36,9 @@ public class LogEntryRepositoryImpl implements LogEntryRepository {
   @Override
   public List<LogEntry> findAll() {
     try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-      return session.createQuery("from LogEntry", LogEntry.class).list();
+      return session
+          .createQuery("from de.godcipher.antiac.hibernate.entity.LogEntry", LogEntry.class)
+          .list();
     }
   }
 
@@ -43,13 +47,13 @@ public class LogEntryRepositoryImpl implements LogEntryRepository {
     Transaction transaction = null;
     try (Session session = HibernateUtil.getSessionFactory().openSession()) {
       transaction = session.beginTransaction();
-      session.delete(logEntry);
+      session.remove(logEntry);
       transaction.commit();
     } catch (Exception e) {
       if (transaction != null) {
         transaction.rollback();
       }
-      e.printStackTrace();
+      log.error("Failed to delete log entry", e);
     }
   }
 }
