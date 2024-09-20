@@ -40,7 +40,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 @Slf4j
 public final class AntiAC extends JavaPlugin {
 
-  private static final String SPIGOT_RESOURCE_ID = "00000";
+  private static final String SPIGOT_RESOURCE_ID = "74933";
 
   @Getter private static AntiAC instance;
 
