@@ -4,13 +4,18 @@ import de.godcipher.antiac.AntiAC;
 import de.godcipher.antiac.bstats.BStatsHandler;
 import de.godcipher.antiac.click.ClickTracker;
 import de.godcipher.antiac.event.PlayerFlaggedEvent;
+import de.godcipher.antiac.hibernate.entity.LogEntry;
+import de.godcipher.antiac.hibernate.repository.impl.LogEntryRepositoryImpl;
 import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 @RequiredArgsConstructor
-public class FlagHandler {
+public class PlayerFlaggingService {
+
+  private final LogEntryRepositoryImpl logEntryRepository = new LogEntryRepositoryImpl();
 
   private final ClickTracker clickTracker;
   private final Check check;
@@ -27,6 +32,8 @@ public class FlagHandler {
                             player, clickTracker.getCPSList(player.getUniqueId()), check)));
 
     handleFlag(player);
+
+    if (isLoggingActivated()) logFlag(player);
   }
 
   public void handleFlag(Player player) {
@@ -47,5 +54,17 @@ public class FlagHandler {
                   AntiAC.getInstance(),
                   () -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), finalCommand));
         });
+  }
+
+  private boolean isLoggingActivated() {
+    return AntiAC.getInstance().getConfiguration().getConfigOption("logging").asBoolean();
+  }
+
+  private void logFlag(Player player) {
+    UUID playerUuid = player.getUniqueId();
+    String checkName = check.getName();
+    LogEntry logEntry = new LogEntry(playerUuid, checkName);
+    Bukkit.getScheduler()
+        .runTaskAsynchronously(AntiAC.getInstance(), () -> logEntryRepository.save(logEntry));
   }
 }

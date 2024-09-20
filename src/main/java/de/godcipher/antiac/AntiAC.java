@@ -21,6 +21,7 @@ import de.godcipher.antiac.detection.checks.MomentumCheck;
 import de.godcipher.antiac.detection.checks.ScaledCPSCheck;
 import de.godcipher.antiac.detection.reliability.TPSChecker;
 import de.godcipher.antiac.detection.violation.ViolationTracker;
+import de.godcipher.antiac.hibernate.HibernateUtil;
 import de.godcipher.antiac.listener.bukkit.PlayerQuitListener;
 import de.godcipher.antiac.listener.protocol.PlayerDiggingPacketListener;
 import de.godcipher.antiac.listener.protocol.PlayerInteractWithEntityPacketListener;
@@ -65,6 +66,7 @@ public final class AntiAC extends JavaPlugin {
     loadConfig();
     registerChecks();
 
+    setupHibernate();
     setupMessages();
     setupCommandFramework();
     setupPacketEvents();
@@ -82,6 +84,10 @@ public final class AntiAC extends JavaPlugin {
 
   @Override
   public void onDisable() {}
+
+  private void setupHibernate() {
+    HibernateUtil.setupHibernate();
+  }
 
   private void setupMessages() {
     Messages.setup();
@@ -128,12 +134,16 @@ public final class AntiAC extends JavaPlugin {
     configuration.addConfigOption(
         "modern-feedback", new ConfigurationOption<>(true, "Enable modern feedback"));
     configuration.addConfigOption(
-        "log-to-database", new ConfigurationOption<>(false, "Enable logging to database"));
+        "logging", new ConfigurationOption<>(false, "Whether to log flagged players"));
     configuration.addConfigOption("database-url", new ConfigurationOption<>("", "Database URL"));
     configuration.addConfigOption(
         "database-username", new ConfigurationOption<>("", "Database username"));
     configuration.addConfigOption(
         "database-password", new ConfigurationOption<>("", "Database password"));
+    configuration.addConfigOption(
+        "database-driver", new ConfigurationOption<>("", "Database driver"));
+    configuration.addConfigOption(
+        "database-dialect", new ConfigurationOption<>("", "Database dialect"));
     configuration.addConfigOption(
         "commands",
         ConfigurationOption.ofStringList(

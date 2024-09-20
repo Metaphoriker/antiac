@@ -16,7 +16,7 @@ public abstract class Check {
   @Getter private final String name;
   @Getter private final CheckConfiguration checkConfiguration;
 
-  private final FlagHandler flagHandler;
+  private final PlayerFlaggingService playerFlaggingService;
 
   protected final ClickTracker clickTracker;
 
@@ -28,7 +28,7 @@ public abstract class Check {
     this.clickTracker = clickTracker;
 
     this.checkConfiguration = new CheckConfiguration(name);
-    this.flagHandler = new FlagHandler(clickTracker, this);
+    this.playerFlaggingService = new PlayerFlaggingService(clickTracker, this);
 
     this.activated = checkConfiguration.isActivated();
   }
@@ -66,7 +66,7 @@ public abstract class Check {
 
   protected final void onFlag(Player player) {
     log.debug("Player: {} - Flagged by {}", player.getName(), name);
-    flagHandler.flagPlayer(player);
+    playerFlaggingService.flagPlayer(player);
   }
 
   protected abstract void onLoad();

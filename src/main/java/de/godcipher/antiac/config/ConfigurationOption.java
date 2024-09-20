@@ -29,6 +29,10 @@ public class ConfigurationOption<T> {
     return (List<String>) value;
   }
 
+  public String asString() {
+    return (String) value;
+  }
+
   public int asInteger() {
     return (Integer) value;
   }
