@@ -22,6 +22,8 @@ public class HibernateConfig {
     configuration.setProperty("hibernate.connection.driver_class", driver);
     configuration.setProperty("hibernate.dialect", dialect);
 
+    configuration.setProperty("hibernate.hbm2ddl.auto", "update");
+
     configuration.addAnnotatedClass(LogEntry.class);
 
     return configuration;
