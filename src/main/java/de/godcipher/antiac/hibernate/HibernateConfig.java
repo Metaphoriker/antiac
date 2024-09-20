@@ -2,30 +2,35 @@ package de.godcipher.antiac.hibernate;
 
 import de.godcipher.antiac.AntiAC;
 import de.godcipher.antiac.hibernate.entity.LogEntry;
-import org.hibernate.cfg.Configuration;
+import org.hibernate.boot.MetadataSources;
+import org.hibernate.boot.registry.StandardServiceRegistry;
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
+import org.hibernate.cfg.Environment;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class HibernateConfig {
 
-  public static Configuration getHibernateConfiguration() {
-    Configuration configuration = new Configuration();
-
+  public static StandardServiceRegistry getHibernateConfiguration() {
     de.godcipher.antiac.config.Configuration config = AntiAC.getInstance().getConfiguration();
-    String url = config.getConfigOption("database.url").asString();
-    String user = config.getConfigOption("database.user").asString();
-    String password = config.getConfigOption("database.password").asString();
-    String driver = config.getConfigOption("database.driver").asString();
-    String dialect = config.getConfigOption("database.dialect").asString();
+    String url = config.getConfigOption("database-url").asString();
+    String user = config.getConfigOption("database-user").asString();
+    String password = config.getConfigOption("database-password").asString();
+    String driver = config.getConfigOption("database-driver").asString();
+    String dialect = config.getConfigOption("database-dialect").asString();
 
-    configuration.setProperty("hibernate.connection.url", url);
-    configuration.setProperty("hibernate.connection.username", user);
-    configuration.setProperty("hibernate.connection.password", password);
-    configuration.setProperty("hibernate.connection.driver_class", driver);
-    configuration.setProperty("hibernate.dialect", dialect);
+    Map<String, Object> settings = new HashMap<>();
+    settings.put(Environment.DRIVER, driver);
+    settings.put(Environment.URL, url);
+    settings.put(Environment.USER, user);
+    settings.put(Environment.PASS, password);
+    settings.put(Environment.DIALECT, dialect);
+    settings.put(Environment.HBM2DDL_AUTO, "update");
 
-    configuration.setProperty("hibernate.hbm2ddl.auto", "update");
+    StandardServiceRegistryBuilder registryBuilder = new StandardServiceRegistryBuilder();
+    registryBuilder.applySettings(settings);
 
-    configuration.addAnnotatedClass(LogEntry.class);
-
-    return configuration;
+    return registryBuilder.build();
   }
 }

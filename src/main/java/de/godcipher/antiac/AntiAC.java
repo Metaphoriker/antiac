@@ -97,7 +97,8 @@ public final class AntiAC extends JavaPlugin {
   }
 
   private void setupHibernate() {
-    HibernateUtil.setupHibernate();
+    if(getConfiguration().getConfigOption("logging").asBoolean())
+      HibernateUtil.setupHibernate();
   }
 
   private void setupMessages() {

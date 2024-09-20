@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -40,14 +39,6 @@
                         </goals>
                         <configuration>
                             <relocations>
-                                <relocation>
-                                    <pattern>mysql</pattern>
-                                    <shadedPattern>de.godcipher.antiac.shaded.mysql</shadedPattern>
-                                </relocation>
-                                <relocation>
-                                    <pattern>org.hibernate</pattern>
-                                    <shadedPattern>de.godcipher.antiac.shaded.hibernate</shadedPattern>
-                                </relocation>
                                 <relocation>
                                     <pattern>javax.persistence</pattern>
                                     <shadedPattern>de.godcipher.antiac.shaded.persistence</shadedPattern>
@@ -138,6 +129,11 @@
             <version>6.2.6.Final</version>
         </dependency>
         <dependency>
+            <groupId>org.jboss.logging</groupId>
+            <artifactId>jboss-logging</artifactId>
+            <version>3.4.3.Final</version>
+        </dependency>
+        <dependency>
             <groupId>javax.persistence</groupId>
             <artifactId>javax.persistence-api</artifactId>
             <version>2.2</version>
@@ -146,17 +142,7 @@
             <groupId>com.jeff_media</groupId>
             <artifactId>SpigotUpdateChecker</artifactId>
             <version>3.0.3</version>
-            <scope>compile</scope>
         </dependency>
-        <!--
-
-                <dependency>
-                    <groupId>org.geysermc.floodgate</groupId>
-                    <artifactId>api</artifactId>
-                    <version>2.2.0-SNAPSHOT</version>
-                    <scope>provided</scope>
-                </dependency>
-        -->
         <dependency>
             <groupId>com.github.retrooper</groupId>
             <artifactId>packetevents-SPIGOT</artifactId>
@@ -166,7 +152,6 @@
             <groupId>org.bstats</groupId>
             <artifactId>bstats-bukkit</artifactId>
             <version>3.0.3</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>co.aikar</groupId>
