@@ -94,7 +94,7 @@ public class AFKClickingCheck extends Check {
 
   private void setupDefaults() {
     getCheckConfiguration()
-        .addConfigOption(
+        .setConfigOption(
             AFK_AFTER_SECONDS_CONFIG,
             new ConfigurationOption<>(10, "Number of seconds before a player is considered AFK"));
   }

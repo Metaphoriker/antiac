@@ -99,12 +99,12 @@ public class ScaledCPSCheck extends Check {
 
   private void setupDefaults() {
     getCheckConfiguration()
-        .addConfigOption(
+        .setConfigOption(
             TOTAL_DELAY_MS_CONFIG,
             ConfigurationOption.ofInteger(
                 2500, "The total delay in milliseconds for 0-100 clicks."));
     getCheckConfiguration()
-        .addConfigOption(
+        .setConfigOption(
             MIN_CLICKS_CONFIG,
             ConfigurationOption.ofInteger(
                 10, "The minimum number of clicks required to perform the check."));

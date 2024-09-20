@@ -5,6 +5,8 @@ import com.github.retrooper.packetevents.PacketEvents;
 import com.github.retrooper.packetevents.event.EventManager;
 import com.github.retrooper.packetevents.event.PacketListenerPriority;
 import com.github.retrooper.packetevents.util.TimeStampMode;
+import com.jeff_media.updatechecker.UpdateCheckSource;
+import com.jeff_media.updatechecker.UpdateChecker;
 import de.godcipher.antiac.bstats.BStatsHandler;
 import de.godcipher.antiac.click.ClickTracker;
 import de.godcipher.antiac.click.ClickType;
@@ -37,6 +39,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 @Slf4j
 public final class AntiAC extends JavaPlugin {
+
+  private static final String SPIGOT_RESOURCE_ID = "00000";
 
   @Getter private static AntiAC instance;
 
@@ -79,10 +83,18 @@ public final class AntiAC extends JavaPlugin {
 
     runTasks();
     printRegisteredChecksAmount();
+
+    runUpdateChecker();
   }
 
   @Override
   public void onDisable() {}
+
+  private void runUpdateChecker() {
+    new UpdateChecker(this, UpdateCheckSource.SPIGOT, SPIGOT_RESOURCE_ID)
+        .checkEveryXHours(12)
+        .checkNow();
+  }
 
   private void setupHibernate() {
     HibernateUtil.setupHibernate();
@@ -121,43 +133,43 @@ public final class AntiAC extends JavaPlugin {
   }
 
   private void loadConfigValues() {
-    configuration.addConfigOption(
+    configuration.setConfigOption(
         "cps-storage-limit",
         new ConfigurationOption<>(30, "Stores the last x CPS internally to process"));
     List<String> clickTypes =
         Arrays.stream(ClickType.values()).map(Enum::name).collect(Collectors.toList());
-    configuration.addConfigOption(
+    configuration.setConfigOption(
         "allowed-clicktypes",
         new ConfigurationOption<>(
             clickTypes, "What click types should AntiAC track? " + clickTypes));
-    configuration.addConfigOption(
+    configuration.setConfigOption(
         "modern-feedback", new ConfigurationOption<>(true, "Enable modern feedback"));
-    configuration.addConfigOption(
+    configuration.setConfigOption(
         "logging", new ConfigurationOption<>(false, "Whether to log flagged players"));
-    configuration.addConfigOption("database-url", new ConfigurationOption<>("", "Database URL"));
-    configuration.addConfigOption(
+    configuration.setConfigOption("database-url", new ConfigurationOption<>("", "Database URL"));
+    configuration.setConfigOption(
         "database-username", new ConfigurationOption<>("", "Database username"));
-    configuration.addConfigOption(
+    configuration.setConfigOption(
         "database-password", new ConfigurationOption<>("", "Database password"));
-    configuration.addConfigOption(
+    configuration.setConfigOption(
         "database-driver", new ConfigurationOption<>("", "Database driver"));
-    configuration.addConfigOption(
+    configuration.setConfigOption(
         "database-dialect", new ConfigurationOption<>("", "Database dialect"));
-    configuration.addConfigOption(
+    configuration.setConfigOption(
         "commands",
         ConfigurationOption.ofStringList(
             List.of("kick %player%", "say %player% got flagged by %check% check!"),
             "Commands to execute when a player gets flagged"));
-    configuration.addConfigOption(
+    configuration.setConfigOption(
         "tps-protection",
         new ConfigurationOption<>(15, "Lowest allowed TPS until the TPS protection kicks in"));
-    configuration.addConfigOption(
+    configuration.setConfigOption(
         "violations", new ConfigurationOption<>(true, "Enable violation-based actions"));
-    configuration.addConfigOption(
+    configuration.setConfigOption(
         "max-allowed-violations",
         new ConfigurationOption<>(
             8, "Maximum amount of violations allowed until the player gets flagged"));
-    configuration.addConfigOption(
+    configuration.setConfigOption(
         "bedrock-players",
         new ConfigurationOption<>(false, "Whether the server allows bedrock players"));
     configuration.loadConfig();

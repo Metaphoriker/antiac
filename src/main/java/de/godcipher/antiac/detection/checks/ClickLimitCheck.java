@@ -37,7 +37,7 @@ public class ClickLimitCheck extends Check {
 
   private void setupDefaults() {
     getCheckConfiguration()
-        .addConfigOption(
+        .setConfigOption(
             LIMIT_CONFIG, ConfigurationOption.ofInteger(40, "The upper limit of the CPS"));
   }
 }

@@ -25,12 +25,8 @@ public class Configuration {
     createFiles();
   }
 
-  public void addConfigOption(String key, ConfigurationOption<?> option) {
+  public void setConfigOption(String key, ConfigurationOption<?> option) {
     configOptions.put(key, option);
-  }
-
-  public void addSpacer() {
-    configOptions.put("", new ConfigurationOption<>(null, ""));
   }
 
   public ConfigurationOption<?> getConfigOption(String key) {

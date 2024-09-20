@@ -70,7 +70,7 @@ public class DoubleClickCheck extends Check {
 
   private void setupDefaults() {
     getCheckConfiguration()
-        .addConfigOption(
+        .setConfigOption(
             REQUIRED_CONSECUTIVE_SUSPICIOUS_CLICKS_CONFIG,
             ConfigurationOption.ofInteger(
                 3, "The number of consecutive suspicious clicks required to flag"));

@@ -10,7 +10,7 @@ public class CheckConfiguration extends Configuration {
   public CheckConfiguration(String checkName) {
     super();
     setupFile(checkName + ".yml", "checks");
-    addConfigOption("activated", new ConfigurationOption<>(true, "Should the check be active?"));
+    setConfigOption("activated", new ConfigurationOption<>(true, "Should the check be active?"));
     saveConfiguration();
   }
 

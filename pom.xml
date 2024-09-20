@@ -41,24 +41,32 @@
                         <configuration>
                             <relocations>
                                 <relocation>
-                                    <pattern>co.aikar</pattern>
-                                    <shadedPattern>de.godcipher.antiac.shaded.aikar</shadedPattern>
+                                    <pattern>mysql</pattern>
+                                    <shadedPattern>de.godcipher.antiac.shaded.mysql</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.hibernate</pattern>
+                                    <shadedPattern>de.godcipher.antiac.shaded.hibernate</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>javax.persistence</pattern>
+                                    <shadedPattern>de.godcipher.antiac.shaded.persistence</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.jeff_media</pattern>
+                                    <shadedPattern>de.godcipher.antiac.shaded.jeff_media</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.github.retrooper</pattern>
+                                    <shadedPattern>de.godcipher.antiac.shaded.packetevents.api</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>org.bstats</pattern>
                                     <shadedPattern>de.godcipher.antiac.shaded.bstats</shadedPattern>
                                 </relocation>
                                 <relocation>
-                                    <pattern>com.github.retrooper.packetevents</pattern>
-                                    <shadedPattern>de.godcipher.antiac.shaded.packetevents.api</shadedPattern>
-                                </relocation>
-                                <relocation>
-                                    <pattern>io.github.retrooper.packetevents</pattern>
-                                    <shadedPattern>de.godcipher.antiac.shaded.packetevents.impl</shadedPattern>
-                                </relocation>
-                                <relocation>
-                                    <pattern>net.kyori</pattern>
-                                    <shadedPattern>de.godcipher.antiac.shaded.packetevents.kyori</shadedPattern>
+                                    <pattern>co.aikar</pattern>
+                                    <shadedPattern>de.godcipher.antiac.shaded.aikar</shadedPattern>
                                 </relocation>
                             </relocations>
                             <minimizeJar>true</minimizeJar>
@@ -93,6 +101,10 @@
         <repository>
             <id>aikar</id>
             <url>https://repo.aikar.co/content/groups/aikar/</url>
+        </repository>
+        <repository>
+            <id>jeff-media-public</id>
+            <url>https://repo.jeff-media.com/public/</url>
         </repository>
     </repositories>
 
@@ -129,6 +141,12 @@
             <groupId>javax.persistence</groupId>
             <artifactId>javax.persistence-api</artifactId>
             <version>2.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.jeff_media</groupId>
+            <artifactId>SpigotUpdateChecker</artifactId>
+            <version>3.0.3</version>
+            <scope>compile</scope>
         </dependency>
         <!--
 

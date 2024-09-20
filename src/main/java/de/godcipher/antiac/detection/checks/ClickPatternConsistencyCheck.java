@@ -67,23 +67,23 @@ public class ClickPatternConsistencyCheck extends Check {
 
   private void setupDefaults() {
     getCheckConfiguration()
-        .addConfigOption(
+        .setConfigOption(
             CLICK_THRESHOLD_CONFIG,
             ConfigurationOption.ofInteger(10, "Minimum number of clicks to analyze."));
     getCheckConfiguration()
-        .addConfigOption(
+        .setConfigOption(
             MIN_DEVIATION_THRESHOLD_CONFIG,
             ConfigurationOption.ofDouble(1.5, "Minimum deviation threshold."));
     getCheckConfiguration()
-        .addConfigOption(
+        .setConfigOption(
             JITTER_THRESHOLD_CONFIG,
             ConfigurationOption.ofInteger(10, "Jitter threshold for click delays."));
     getCheckConfiguration()
-        .addConfigOption(
+        .setConfigOption(
             SMALL_WINDOW_CONFIG,
             ConfigurationOption.ofInteger(5, "Small window for delay comparison."));
     getCheckConfiguration()
-        .addConfigOption(
+        .setConfigOption(
             IDENTICAL_DELAY_THRESHOLD_CONFIG,
             ConfigurationOption.ofInteger(3, "Threshold for identical delays."));
   }

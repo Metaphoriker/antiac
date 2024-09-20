@@ -2,12 +2,11 @@ package de.godcipher.antiac.detection;
 
 import de.godcipher.antiac.click.CPS;
 import de.godcipher.antiac.click.ClickTracker;
+import de.godcipher.antiac.config.ConfigurationOption;
+import de.godcipher.antiac.detection.service.PlayerFlaggingService;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import de.godcipher.antiac.detection.service.PlayerFlaggingService;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.bukkit.entity.Player;
 
@@ -21,7 +20,7 @@ public abstract class Check {
 
   protected final ClickTracker clickTracker;
 
-  @Getter @Setter private boolean activated;
+  @Getter private boolean activated;
   @Getter private boolean loaded;
 
   protected Check(ClickTracker clickTracker) {
@@ -35,8 +34,16 @@ public abstract class Check {
   }
 
   // For cleanup when a player quits
-  public void handlePlayerQuit(Player player) {
+  public void handlePlayerQuit(Player player) {}
 
+  public void setActivated(boolean activated) {
+    this.activated = activated;
+    checkConfiguration.setConfigOption(
+        "activated", new ConfigurationOption<>(activated, getComment("activated")));
+  }
+
+  private String getComment(String key) {
+    return checkConfiguration.getConfigOption(key).getComment();
   }
 
   void load() {

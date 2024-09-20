@@ -128,14 +128,14 @@ public class MomentumCheck extends Check {
 
   private void setupDefaults() {
     getCheckConfiguration()
-        .addConfigOption(
+        .setConfigOption(
             CPS_THRESHOLD_CONFIG, ConfigurationOption.ofInteger(20, "The number of CPS to check"));
     getCheckConfiguration()
-        .addConfigOption(
+        .setConfigOption(
             PERCENTAGE_THRESHOLD_CONFIG,
             ConfigurationOption.ofInteger(75, "The maximum percentage slope to trigger on"));
     getCheckConfiguration()
-        .addConfigOption(
+        .setConfigOption(
             WINDOW_SIZE_CONFIG,
             ConfigurationOption.ofInteger(5, "The window size for rolling slope calculation"));
   }
