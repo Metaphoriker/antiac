@@ -1,8 +1,9 @@
-package de.godcipher.antiac.detection;
+package de.godcipher.antiac.detection.service;
 
 import de.godcipher.antiac.AntiAC;
 import de.godcipher.antiac.bstats.BStatsHandler;
 import de.godcipher.antiac.click.ClickTracker;
+import de.godcipher.antiac.detection.Check;
 import de.godcipher.antiac.event.PlayerFlaggedEvent;
 import de.godcipher.antiac.hibernate.entity.LogEntry;
 import de.godcipher.antiac.hibernate.repository.impl.LogEntryRepositoryImpl;
