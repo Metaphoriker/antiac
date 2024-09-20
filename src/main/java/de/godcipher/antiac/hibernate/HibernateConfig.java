@@ -9,15 +9,12 @@ public class HibernateConfig {
   public static Configuration getHibernateConfiguration() {
     Configuration configuration = new Configuration();
 
-    String url = AntiAC.getInstance().getConfiguration().getConfigOption("database.url").asString();
-    String user =
-        AntiAC.getInstance().getConfiguration().getConfigOption("database.user").asString();
-    String password =
-        AntiAC.getInstance().getConfiguration().getConfigOption("database.password").asString();
-    String driver =
-        AntiAC.getInstance().getConfiguration().getConfigOption("database.driver").asString();
-    String dialect =
-        AntiAC.getInstance().getConfiguration().getConfigOption("database.dialect").asString();
+    de.godcipher.antiac.config.Configuration config = AntiAC.getInstance().getConfiguration();
+    String url = config.getConfigOption("database.url").asString();
+    String user = config.getConfigOption("database.user").asString();
+    String password = config.getConfigOption("database.password").asString();
+    String driver = config.getConfigOption("database.driver").asString();
+    String dialect = config.getConfigOption("database.dialect").asString();
 
     configuration.setProperty("hibernate.connection.url", url);
     configuration.setProperty("hibernate.connection.username", user);
