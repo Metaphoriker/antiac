@@ -23,8 +23,7 @@ import de.godcipher.antiac.detection.reliability.TPSChecker;
 import de.godcipher.antiac.detection.violation.ViolationTracker;
 import de.godcipher.antiac.hibernate.HibernateUtil;
 import de.godcipher.antiac.listener.bukkit.PlayerQuitListener;
-import de.godcipher.antiac.listener.protocol.PlayerDiggingPacketListener;
-import de.godcipher.antiac.listener.protocol.PlayerInteractWithEntityPacketListener;
+import de.godcipher.antiac.listener.protocol.PlayerAttackEntityPacketListener;
 import de.godcipher.antiac.messages.Messages;
 import de.godcipher.antiac.tasks.CheckExecutionTask;
 import de.godcipher.antiac.tasks.ClearViolationsTask;
@@ -216,12 +215,13 @@ public final class AntiAC extends JavaPlugin {
 
   private void registerPacketListener() {
     EventManager eventManager = PacketEvents.getAPI().getEventManager();
-    // eventManager.registerListener(
-    //    new PlayerInteractWithBlockPacketListener(clickTracker), PacketListenerPriority.NORMAL);
-    // TODO: double click bug
+    /* TODO: packets are thrown multiple times at once, therefore false positives
+       eventManager.registerListener(
+           new PlayerInteractWithBlockPacketListener(clickTracker), PacketListenerPriority.NORMAL);
+       eventManager.registerListener(
+               new PlayerDiggingPacketListener(clickTracker), PacketListenerPriority.NORMAL);
+    */
     eventManager.registerListener(
-        new PlayerInteractWithEntityPacketListener(clickTracker), PacketListenerPriority.NORMAL);
-    eventManager.registerListener(
-        new PlayerDiggingPacketListener(clickTracker), PacketListenerPriority.NORMAL);
+        new PlayerAttackEntityPacketListener(clickTracker), PacketListenerPriority.NORMAL);
   }
 }
