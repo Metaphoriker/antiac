@@ -2,6 +2,10 @@ name: AntiAC
 version: ${project.version}
 main: de.godcipher.antiac.AntiAC
 api-version: '1.13' # support as many versions as possible
+libraries:
+  - "org.hibernate.orm:hibernate-core:6.6.1.Final"
+  - "mysql:mysql-connector-java:8.0.32"
+  - "javax.persistence:javax.persistence-api:2.2"
 
 commands:
   antiac:

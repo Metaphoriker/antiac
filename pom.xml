@@ -40,10 +40,6 @@
                         <configuration>
                             <relocations>
                                 <relocation>
-                                    <pattern>javax.persistence</pattern>
-                                    <shadedPattern>de.godcipher.antiac.shaded.persistence</shadedPattern>
-                                </relocation>
-                                <relocation>
                                     <pattern>com.jeff_media</pattern>
                                     <shadedPattern>de.godcipher.antiac.shaded.jeff_media</shadedPattern>
                                 </relocation>
@@ -58,14 +54,6 @@
                                 <relocation>
                                     <pattern>co.aikar</pattern>
                                     <shadedPattern>de.godcipher.antiac.shaded.aikar</shadedPattern>
-                                </relocation>
-                                <relocation>
-                                    <pattern>mysql</pattern>
-                                    <shadedPattern>de.godcipher.antiac.shaded.mysql</shadedPattern>
-                                </relocation>
-                                <relocation>
-                                    <pattern>org.hibernate</pattern>
-                                    <shadedPattern>de.godcipher.antiac.shaded.hibernate</shadedPattern>
                                 </relocation>
                             </relocations>
                             <minimizeJar>true</minimizeJar>
@@ -127,19 +115,22 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+            <version>6.6.1.Final</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <version>8.0.32</version>
-        </dependency>
-        <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-core</artifactId>
-            <version>6.2.6.Final</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>javax.persistence</groupId>
             <artifactId>javax.persistence-api</artifactId>
             <version>2.2</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.jeff_media</groupId>
