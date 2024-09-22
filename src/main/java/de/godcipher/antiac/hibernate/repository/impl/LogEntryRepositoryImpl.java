@@ -1,6 +1,7 @@
 package de.godcipher.antiac.hibernate.repository.impl;
 
 import de.godcipher.antiac.hibernate.HibernateUtil;
+import de.godcipher.antiac.hibernate.cache.LogEntryCacheService;
 import de.godcipher.antiac.hibernate.entity.LogEntry;
 import de.godcipher.antiac.hibernate.repository.LogEntryRepository;
 import java.util.List;
@@ -11,6 +12,8 @@ import org.hibernate.Transaction;
 @Slf4j
 public class LogEntryRepositoryImpl implements LogEntryRepository {
 
+  private final LogEntryCacheService cacheService = new LogEntryCacheService();
+
   @Override
   public void save(LogEntry logEntry) {
     Transaction transaction = null;
@@ -18,6 +21,7 @@ public class LogEntryRepositoryImpl implements LogEntryRepository {
       transaction = session.beginTransaction();
       session.merge(logEntry);
       transaction.commit();
+      cacheService.save(logEntry);
     } catch (Exception e) {
       if (transaction != null) {
         transaction.rollback();
@@ -28,18 +32,31 @@ public class LogEntryRepositoryImpl implements LogEntryRepository {
 
   @Override
   public LogEntry findById(long id) {
-    try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-      return session.get(LogEntry.class, id);
+    LogEntry logEntry = cacheService.findById(id);
+    if (logEntry == null) {
+      try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+        logEntry = session.get(LogEntry.class, id);
+        if (logEntry != null) {
+          cacheService.save(logEntry);
+        }
+      }
     }
+    return logEntry;
   }
 
   @Override
   public List<LogEntry> findAll() {
-    try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-      return session
-          .createQuery("from de.godcipher.antiac.hibernate.entity.LogEntry", LogEntry.class)
-          .list();
+    List<LogEntry> logEntries = cacheService.findAll();
+    if (logEntries.isEmpty()) {
+      try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+        logEntries =
+            session
+                .createQuery("from de.godcipher.antiac.hibernate.entity.LogEntry", LogEntry.class)
+                .list();
+        logEntries.forEach(cacheService::save);
+      }
     }
+    return logEntries;
   }
 
   @Override
@@ -49,6 +66,7 @@ public class LogEntryRepositoryImpl implements LogEntryRepository {
       transaction = session.beginTransaction();
       session.remove(logEntry);
       transaction.commit();
+      cacheService.delete(logEntry);
     } catch (Exception e) {
       if (transaction != null) {
         transaction.rollback();
