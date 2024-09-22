@@ -37,36 +37,14 @@ To install AntiAC v3, follow these steps:
 
 ## Configuration
 
-After installation, you can configure AntiAC v3 by editing the `config.yml` file located in the `plugins/AntiAC` directory. Here are some key configuration options:
-
-```yaml
-# config.yml
-
-# Enable or disable the plugin
-enabled: true
-
-# Sensitivity settings for autoclicker detection
-detection:
-  sensitivity: 0.8
-  min_clicks_per_second: 10
-
-# Logging settings
-logging:
-  enabled: true
-  log_file: logs/antiac.log
-
-# Integration settings
-integration:
-  notify_admins: true
-  ban_on_detection: false
-```
+After installation, you can configure AntiAC v3 by editing the `config.yml` file located in the `plugins/AntiAC` directory.
+The checks can be configured in the `checks` directory within `plugins/AntiAC`.
 
 ## Usage
 Once installed and configured, AntiAC v3 will automatically start monitoring player actions. You can use the following commands to interact with the plugin:
 
-- /antiac reload: Reloads the plugin configuration.
-- /antiac status: Displays the current status of the plugin.
 - /antiac check <player>: Manually checks a player for autoclicking behavior.
+- /antiac checks: Lists all available checks and an option to toggle them.
 
 ## Contributing
 We welcome contributions from the community! To contribute to AntiAC v3, follow these steps:  
