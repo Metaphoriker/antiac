@@ -224,7 +224,7 @@ public class AntiACCommand extends BaseCommand {
   @Subcommand("logs")
   @CommandPermission("antiac.logs")
   @Description("List all logs")
-  public void onLogs(Player player, @Optional int page) {
+  public void onLogs(Player player, @Optional Integer page) {
     if (!AntiAC.getInstance().getConfiguration().getConfigOption("logging").asBoolean()) {
       sendFeedback(
           player,
@@ -232,6 +232,10 @@ public class AntiACCommand extends BaseCommand {
           ERROR_TITLE,
           Messages.getString("command.logs.not_enabled"));
       return;
+    }
+
+    if (page == null) {
+      page = 0;
     }
 
     sendFeedback(

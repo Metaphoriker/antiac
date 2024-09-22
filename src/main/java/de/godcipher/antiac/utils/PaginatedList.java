@@ -23,7 +23,7 @@ public class PaginatedList<T> {
   }
 
   public List<T> getPage(int pageNumber) {
-    int fromIndex = (pageNumber - 1) * pageSize;
+    int fromIndex = pageNumber * pageSize;
     int toIndex = Math.min(fromIndex + pageSize, items.size());
     if (fromIndex >= items.size() || fromIndex < 0) {
       return new ArrayList<>();
