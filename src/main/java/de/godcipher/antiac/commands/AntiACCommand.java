@@ -225,6 +225,15 @@ public class AntiACCommand extends BaseCommand {
   @CommandPermission("antiac.logs")
   @Description("List all logs")
   public void onLogs(Player player, @Optional int page) {
+    if (!AntiAC.getInstance().getConfiguration().getConfigOption("logging").asBoolean()) {
+      sendFeedback(
+          player,
+          Colors.PURPLE_MAUVE_COLOR,
+          ERROR_TITLE,
+          Messages.getString("command.logs.not_enabled"));
+      return;
+    }
+
     sendFeedback(
         player, Colors.PINE_GREEN_COLOR, SUCCESS_TITLE, Messages.getString("command.logs.listing"));
 
