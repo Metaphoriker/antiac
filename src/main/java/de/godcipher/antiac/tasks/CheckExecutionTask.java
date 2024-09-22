@@ -20,7 +20,8 @@ public class CheckExecutionTask implements Runnable {
 
   @Override
   public void run() {
-    if (!isTPSReliable()) {
+    if (!tpsChecker.isReliable()) {
+      log.debug("TPS is not reliable, skipping check execution");
       return;
     }
 
@@ -29,14 +30,6 @@ public class CheckExecutionTask implements Runnable {
     }
 
     cleanupOldCPS();
-  }
-
-  private boolean isTPSReliable() {
-    boolean reliable = tpsChecker.isReliable();
-    if (!reliable) {
-      log.debug("TPS is not reliable, skipping check execution");
-    }
-    return reliable;
   }
 
   private void processPlayer(Player player) {
