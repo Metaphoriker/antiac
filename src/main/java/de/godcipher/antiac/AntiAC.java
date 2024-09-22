@@ -24,6 +24,7 @@ import de.godcipher.antiac.detection.checks.ScaledCPSCheck;
 import de.godcipher.antiac.detection.reliability.TPSChecker;
 import de.godcipher.antiac.detection.violation.ViolationTracker;
 import de.godcipher.antiac.hibernate.HibernateUtil;
+import de.godcipher.antiac.hibernate.repository.impl.LogEntryRepositoryImpl;
 import de.godcipher.antiac.listener.bukkit.PlayerQuitListener;
 import de.godcipher.antiac.listener.protocol.PlayerAttackEntityPacketListener;
 import de.godcipher.antiac.messages.Messages;
@@ -47,6 +48,8 @@ public final class AntiAC extends JavaPlugin {
   @Getter
   private final Configuration configuration =
       new Configuration(); // do we really want to share this?
+
+  @Getter private final LogEntryRepositoryImpl logEntryRepository = new LogEntryRepositoryImpl(); // +1
 
   private final TPSChecker tpsChecker = new TPSChecker(configuration);
 
@@ -110,7 +113,7 @@ public final class AntiAC extends JavaPlugin {
     PaperCommandManager commandManager = new PaperCommandManager(this);
     registerCommandCompletions(commandManager);
     commandManager.registerCommand(
-        new AntiACCommand(clickTracker, violationTracker, configuration));
+        new AntiACCommand(clickTracker, violationTracker, logEntryRepository, configuration));
   }
 
   private void registerCommandCompletions(PaperCommandManager commandManager) {

@@ -9,7 +9,6 @@ import de.godcipher.antiac.click.ClickType;
 import de.godcipher.antiac.detection.Check;
 import de.godcipher.antiac.event.PlayerFlaggedEvent;
 import de.godcipher.antiac.hibernate.entity.LogEntry;
-import de.godcipher.antiac.hibernate.repository.impl.LogEntryRepositoryImpl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -19,8 +18,6 @@ import org.bukkit.entity.Player;
 
 @RequiredArgsConstructor
 public class PlayerFlaggingService {
-
-  private final LogEntryRepositoryImpl logEntryRepository = new LogEntryRepositoryImpl();
 
   private final ClickTracker clickTracker;
   private final Check check;
@@ -72,7 +69,9 @@ public class PlayerFlaggingService {
     LogEntry logEntry =
         new LogEntry(playerUuid, checkName, latestCPS.getCPS(), getAverageClickType(latestCPS));
     Bukkit.getScheduler()
-        .runTaskAsynchronously(AntiAC.getInstance(), () -> logEntryRepository.save(logEntry));
+        .runTaskAsynchronously(
+            AntiAC.getInstance(),
+            () -> AntiAC.getInstance().getLogEntryRepository().save(logEntry));
   }
 
   private ClickType getAverageClickType(CPS cps) {
