@@ -281,6 +281,9 @@ public class AntiACCommand extends BaseCommand {
   }
 
   private void startCheckTask(Player player, Player target) {
+    boolean isViolationsActive =
+        AntiAC.getInstance().getConfiguration().getConfigOption("violations").asBoolean();
+
     new BukkitRunnable() {
       int maxCPS;
 
@@ -295,16 +298,24 @@ public class AntiACCommand extends BaseCommand {
 
           maxCPS = Math.max(maxCPS, cps.getCPS());
 
-          String message =
-              String.format(
-                  "%s%s | %s%s - %sViolations: %s%d",
-                  Colors.BRASS_YELLOW_COLOR,
-                  cps,
-                  Colors.COPPER_ORANGE_COLOR,
-                  maxCPS,
-                  Colors.SLATE_GRAY_COLOR,
-                  Colors.ROSEWOOD_RED_COLOR,
-                  violationTracker.getViolationCount(target.getUniqueId()));
+          StringBuilder messageBuilder = new StringBuilder();
+          messageBuilder
+              .append(Colors.BRASS_YELLOW_COLOR)
+              .append(cps)
+              .append(" | ")
+              .append(Colors.COPPER_ORANGE_COLOR)
+              .append(maxCPS);
+
+          if (isViolationsActive) {
+            messageBuilder
+                .append(" - ")
+                .append(Colors.SLATE_GRAY_COLOR)
+                .append("Violations: ")
+                .append(Colors.ROSEWOOD_RED_COLOR)
+                .append(violationTracker.getViolationCount(target.getUniqueId()));
+          }
+
+          String message = messageBuilder.toString();
 
           player
               .spigot()
