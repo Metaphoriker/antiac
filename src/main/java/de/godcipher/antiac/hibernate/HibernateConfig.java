@@ -1,8 +1,6 @@
 package de.godcipher.antiac.hibernate;
 
 import de.godcipher.antiac.AntiAC;
-import de.godcipher.antiac.hibernate.entity.LogEntry;
-import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Environment;
