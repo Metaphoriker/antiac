@@ -33,6 +33,8 @@ To install AntiAC v3, follow these steps:
 2. Place the `AntiAC.jar` file in your server's `plugins` directory.
 3. Restart your server to load the plugin.
 
+**NOTE:** You will need Java 21 or higher to run AntiAC v3.
+
 ## Configuration
 
 After installation, you can configure AntiAC v3 by editing the `config.yml` file located in the `plugins/AntiAC` directory. Here are some key configuration options:
