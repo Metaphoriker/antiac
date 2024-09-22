@@ -5,11 +5,15 @@ import co.aikar.commands.annotation.*;
 import de.godcipher.antiac.AntiAC;
 import de.godcipher.antiac.click.CPS;
 import de.godcipher.antiac.click.ClickTracker;
+import de.godcipher.antiac.click.ClickType;
 import de.godcipher.antiac.config.Configuration;
 import de.godcipher.antiac.detection.Check;
 import de.godcipher.antiac.detection.violation.ViolationTracker;
+import de.godcipher.antiac.hibernate.entity.LogEntry;
+import de.godcipher.antiac.hibernate.repository.LogEntryRepository;
 import de.godcipher.antiac.messages.Colors;
 import de.godcipher.antiac.messages.Messages;
+import de.godcipher.antiac.utils.PaginatedList;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,6 +25,8 @@ import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -34,12 +40,17 @@ public class AntiACCommand extends BaseCommand {
   private final Map<UUID, UUID> playerChecks = new HashMap<>();
   private final ClickTracker clickTracker;
   private final ViolationTracker violationTracker;
+  private final LogEntryRepository logEntryRepository;
   private final boolean modernFeedback;
 
   public AntiACCommand(
-      ClickTracker clickTracker, ViolationTracker violationTracker, Configuration configuration) {
+      ClickTracker clickTracker,
+      ViolationTracker violationTracker,
+      LogEntryRepository logEntryRepository,
+      Configuration configuration) {
     this.clickTracker = clickTracker;
     this.violationTracker = violationTracker;
+    this.logEntryRepository = logEntryRepository;
     this.modernFeedback = configuration.getConfigOption("modern-feedback").asBoolean();
   }
 
@@ -208,6 +219,52 @@ public class AntiACCommand extends BaseCommand {
           ERROR_TITLE,
           Messages.getString("command.check.not_found"));
     }
+  }
+
+  @Subcommand("logs")
+  @CommandPermission("antiac.logs")
+  @Description("List all logs")
+  public void onLogs(Player player, @Optional int page) {
+    sendFeedback(
+        player, Colors.PINE_GREEN_COLOR, SUCCESS_TITLE, Messages.getString("command.logs.listing"));
+
+    player.spigot().sendMessage(new TextComponent(" "));
+
+    TextComponent header = createHeader("⬢ AntiAC Logs ⬢");
+    player.spigot().sendMessage(header);
+    sendLogs(player, page);
+    TextComponent footer = createFooter("⬢ " + "—".repeat(18) + " ⬢");
+    player.spigot().sendMessage(footer);
+  }
+
+  private void sendLogs(Player player, int page) {
+    PaginatedList<LogEntry> logEntryPaginatedList = new PaginatedList<>(5);
+    logEntryPaginatedList.addAll(logEntryRepository.findAll());
+    for (LogEntry log : logEntryPaginatedList.getPage(page)) {
+      TextComponent message = createLogMessage(log);
+      player.spigot().sendMessage(message);
+    }
+  }
+
+  private TextComponent createLogMessage(LogEntry logEntry) {
+    TextComponent message = new TextComponent("  | ");
+    message.setColor(Colors.SEPARATOR_COLOR);
+
+    TextComponent logMessageComponent = new TextComponent(formatLogMessage(logEntry));
+    logMessageComponent.setColor(Colors.PURPLE_MAUVE_COLOR);
+
+    return message;
+  }
+
+  private String formatLogMessage(LogEntry logEntry) {
+    OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(logEntry.getUuid());
+    String checkName = formatCheckName(logEntry.getCheckName());
+    int lastCps = logEntry.getLastCPS();
+    ClickType averageClickType = logEntry.getAverageClickType();
+
+    return String.format(
+        "Player: %s, Check: %s, Last CPS: %d, Average Click Type: %s",
+        offlinePlayer.getName(), checkName, lastCps, averageClickType);
   }
 
   private void startCheckTask(Player player, Player target) {
