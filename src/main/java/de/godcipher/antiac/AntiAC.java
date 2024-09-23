@@ -161,9 +161,11 @@ public final class AntiAC extends JavaPlugin {
     configuration.setConfigOption(
         "database-password", new ConfigurationOption<>("", "Database password"));
     configuration.setConfigOption(
-        "database-driver", new ConfigurationOption<>("", "Database driver"));
+        "database-driver",
+        new ConfigurationOption<>("com.mysql.cj.jdbc.Driver", "Database driver"));
     configuration.setConfigOption(
-        "database-dialect", new ConfigurationOption<>("", "Database dialect"));
+        "database-dialect",
+        new ConfigurationOption<>("org.hibernate.dialect.MySQLDialect", "Database dialect"));
     configuration.setConfigOption(
         "commands",
         ConfigurationOption.ofStringList(
