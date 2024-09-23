@@ -32,7 +32,17 @@ public class LogEntryRepositoryImpl implements LogEntryRepository {
       session.merge(logEntry);
       transaction.commit();
       cacheService.save(logEntry);
+    } catch (IllegalArgumentException e) {
+      log.error("Entity not found or recognized. Please check entity mappings.", e);
+      if (transaction != null && transaction.getStatus().canRollback()) {
+        try {
+          transaction.rollback();
+        } catch (Exception rollbackException) {
+          log.error("Failed to rollback transaction", rollbackException);
+        }
+      }
     } catch (Exception e) {
+      // Rollback the transaction in case of other exceptions
       if (transaction != null && transaction.getStatus().canRollback()) {
         try {
           transaction.rollback();
@@ -43,6 +53,7 @@ public class LogEntryRepositoryImpl implements LogEntryRepository {
       log.error("Failed to save log entry", e);
     }
   }
+
 
   @Override
   public LogEntry findById(long id) {

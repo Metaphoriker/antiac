@@ -23,6 +23,8 @@ import de.godcipher.antiac.detection.checks.MomentumCheck;
 import de.godcipher.antiac.detection.checks.ScaledCPSCheck;
 import de.godcipher.antiac.detection.reliability.TPSChecker;
 import de.godcipher.antiac.detection.violation.ViolationTracker;
+import de.godcipher.antiac.hibernate.DatabaseDialect;
+import de.godcipher.antiac.hibernate.DatabaseDriver;
 import de.godcipher.antiac.hibernate.HibernateUtil;
 import de.godcipher.antiac.hibernate.repository.impl.LogEntryRepositoryImpl;
 import de.godcipher.antiac.listener.bukkit.PlayerQuitListener;
@@ -39,7 +41,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.hibernate.Hibernate;
 
 @Slf4j
 public final class AntiAC extends JavaPlugin {
@@ -208,7 +209,10 @@ public final class AntiAC extends JavaPlugin {
         "database-password", new ConfigurationOption<>("", "Database password"));
     configuration.setConfigOption(
         "database-driver",
-        new ConfigurationOption<>("com.mysql.cj.jdbc.Driver", "Database driver"));
+        new ConfigurationOption<>("", Arrays.toString(getOnlyEnumNames(DatabaseDriver.class))));
+    configuration.setConfigOption(
+        "database-dialect",
+        new ConfigurationOption<>("", Arrays.toString(getOnlyEnumNames(DatabaseDialect.class))));
     configuration.setConfigOption(
         "commands",
         ConfigurationOption.ofStringList(
@@ -227,6 +231,10 @@ public final class AntiAC extends JavaPlugin {
         "bedrock-players",
         new ConfigurationOption<>(false, "Whether the server allows bedrock players"));
     configuration.loadConfig();
+  }
+
+  private String[] getOnlyEnumNames(Class<? extends Enum<?>> enumClass) {
+    return Arrays.stream(enumClass.getEnumConstants()).map(Enum::name).toArray(String[]::new);
   }
 
   private void initializeBStats() {

@@ -17,10 +17,9 @@ public class HibernateUtil {
       StandardServiceRegistry registry = HibernateConfig.getHibernateConfiguration();
       MetadataSources sources = new MetadataSources(registry);
       sources.addAnnotatedClass(LogEntry.class);
-
       sessionFactory = sources.buildMetadata().buildSessionFactory();
     } catch (Exception e) {
-      log.error("Initial SessionFactory creation failed", e);
+      log.error("SessionFactory creation failed", e);
       throw new ExceptionInInitializerError("Initial SessionFactory creation failed" + e);
     }
   }

@@ -1,0 +1,23 @@
+<hibernate-configuration>
+    <session-factory>
+
+        <!-- Database connection settings -->
+        <property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
+        <property name="hibernate.connection.url">jdbc:your_database_url</property>
+        <property name="hibernate.connection.username">your_username</property>
+        <property name="hibernate.connection.password">your_password</property>
+
+        <!-- Dialect for the database (e.g., MySQL, PostgreSQL, H2) -->
+        <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
+
+        <!-- Automatically generate or update schema -->
+        <property name="hibernate.hbm2ddl.auto">create</property>
+
+        <!-- Enable logging of SQL for debugging -->
+        <property name="hibernate.show_sql">true</property>
+        <property name="hibernate.format_sql">true</property>
+
+        <!-- Entity classes -->
+        <mapping class="de.godcipher.antiac.hibernate.entity.LogEntry"/>
+    </session-factory>
+</hibernate-configuration>
