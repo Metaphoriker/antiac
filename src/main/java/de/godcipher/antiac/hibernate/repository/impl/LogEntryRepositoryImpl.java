@@ -27,7 +27,7 @@ public class LogEntryRepositoryImpl implements LogEntryRepository {
   @Override
   public void save(LogEntry logEntry) {
     Transaction transaction = null;
-    try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+    try (Session session = HibernateUtil.openSession()) {
       transaction = session.beginTransaction();
       session.merge(logEntry);
       transaction.commit();
@@ -44,7 +44,7 @@ public class LogEntryRepositoryImpl implements LogEntryRepository {
   public LogEntry findById(long id) {
     LogEntry logEntry = cacheService.findById(id);
     if (logEntry == null) {
-      try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+      try (Session session = HibernateUtil.openSession()) {
         logEntry = session.get(LogEntry.class, id);
         if (logEntry != null) {
           cacheService.save(logEntry);
@@ -62,7 +62,7 @@ public class LogEntryRepositoryImpl implements LogEntryRepository {
   @Override
   public void delete(LogEntry logEntry) {
     Transaction transaction = null;
-    try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+    try (Session session = HibernateUtil.openSession()) {
       transaction = session.beginTransaction();
       session.remove(logEntry);
       transaction.commit();
