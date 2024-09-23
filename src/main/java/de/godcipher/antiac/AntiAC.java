@@ -36,7 +36,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 
 @Slf4j
 public final class AntiAC extends JavaPlugin {
@@ -121,6 +123,10 @@ public final class AntiAC extends JavaPlugin {
         new AntiACCommand(clickTracker, violationTracker, logEntryRepository, configuration));
   }
 
+  private void stopAllTasks() {
+    Bukkit.getScheduler().cancelTasks(this);
+  }
+
   private void registerCommandCompletions(PaperCommandManager commandManager) {
     commandManager
         .getCommandCompletions()
@@ -139,6 +145,44 @@ public final class AntiAC extends JavaPlugin {
     configuration.setupFile("config.yml", null);
 
     loadConfigValues();
+  }
+
+  public void reload() {
+    configuration.reloadConfig();
+    loadConfigValues();
+    Messages.setup();
+    clearChecks();
+    registerChecks();
+    reloadScheduler();
+  }
+
+  private void reloadScheduler() {
+    log.debug("AntiAC is reloading...");
+
+    new BukkitRunnable() {
+      RebootStep step = RebootStep.DEACTIVATING;
+
+      @Override
+      public void run() {
+        switch (step) {
+          case DEACTIVATING:
+            step = RebootStep.ACTIVATING;
+            Bukkit.getPluginManager().disablePlugin(AntiAC.this);
+            break;
+          case ACTIVATING:
+            stopAllTasks();
+            step = null;
+            Bukkit.getPluginManager().enablePlugin(AntiAC.this);
+            cancel();
+            break;
+        }
+      }
+    }.runTaskLater(this, 20 * 5);
+  }
+
+  private enum RebootStep {
+    ACTIVATING,
+    DEACTIVATING,
   }
 
   private void loadConfigValues() {
@@ -218,6 +262,10 @@ public final class AntiAC extends JavaPlugin {
     checkRegistry.registerCheck(new DoubleClickCheck(clickTracker));
     checkRegistry.registerCheck(new MomentumCheck(clickTracker));
     checkRegistry.registerCheck(new ScaledCPSCheck(clickTracker));
+  }
+
+  private void clearChecks() {
+    checkRegistry.clearChecks();
   }
 
   private void registerBukkitListener() {

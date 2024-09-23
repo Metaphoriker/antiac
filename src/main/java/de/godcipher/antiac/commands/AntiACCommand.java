@@ -248,6 +248,18 @@ public class AntiACCommand extends BaseCommand {
     sendLogs(player, page);
   }
 
+  @Subcommand("reload")
+  @CommandPermission("antiac.reload")
+  @Description("Reload entire AntiAC")
+  public void onReload(Player player) {
+    sendFeedback(
+        player,
+        Colors.PINE_GREEN_COLOR,
+        SUCCESS_TITLE,
+        Messages.getString("command.reload.success"));
+    AntiAC.getInstance().reload();
+  }
+
   private TextComponent createLogsFooter(int page, int totalPages) {
     TextComponent footer = new TextComponent("⬢ ");
     footer.setColor(Colors.PURPLE_MAUVE_COLOR);

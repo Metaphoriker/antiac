@@ -3,6 +3,7 @@ package de.godcipher.antiac.detection;
 import de.godcipher.antiac.config.Configuration;
 import de.godcipher.antiac.detection.violation.ViolationTracker;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +39,15 @@ public class CheckRegistry {
         .filter(check -> check.getName().equalsIgnoreCase(name))
         .findFirst()
         .orElse(null);
+  }
+
+  public void clearChecks() {
+    Iterator<Check> iterator = checks.iterator();
+    while (iterator.hasNext()) {
+      Check check = iterator.next();
+      iterator.remove();
+      check.unload();
+    }
   }
 
   private boolean isCheckActiveAndLoaded(Check check) {

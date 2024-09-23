@@ -33,6 +33,11 @@ public class Configuration {
     return configOptions.get(key);
   }
 
+  public void reloadConfig() {
+    config = YamlConfiguration.loadConfiguration(file);
+    loadFromConfig();
+  }
+
   public void loadConfig() {
     config.options().copyDefaults(true);
     generateAndMergeConfig();
