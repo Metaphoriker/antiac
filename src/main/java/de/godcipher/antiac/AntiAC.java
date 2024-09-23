@@ -210,9 +210,6 @@ public final class AntiAC extends JavaPlugin {
         "database-driver",
         new ConfigurationOption<>("com.mysql.cj.jdbc.Driver", "Database driver"));
     configuration.setConfigOption(
-        "database-dialect",
-        new ConfigurationOption<>("org.hibernate.dialect.MySQLDialect", "Database dialect"));
-    configuration.setConfigOption(
         "commands",
         ConfigurationOption.ofStringList(
             List.of("kick %player%", "say %player% got flagged by %check% check!"),
