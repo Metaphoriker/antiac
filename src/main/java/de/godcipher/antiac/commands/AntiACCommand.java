@@ -152,7 +152,7 @@ public class AntiACCommand extends BaseCommand {
     }
 
     // Footer
-    TextComponent footer = createFooter("⬢ " + "—".repeat(18) + " ⬢");
+    TextComponent footer = createFooter();
     player.spigot().sendMessage(footer);
   }
 
@@ -246,17 +246,49 @@ public class AntiACCommand extends BaseCommand {
     TextComponent header = createHeader("⬢ AntiAC Logs ⬢");
     player.spigot().sendMessage(header);
     sendLogs(player, page);
-    TextComponent footer = createFooter("⬢ " + "—".repeat(18) + " ⬢");
-    player.spigot().sendMessage(footer);
+  }
+
+  private TextComponent createLogsFooter(int page, int totalPages) {
+    TextComponent footer = new TextComponent("⬢ ");
+    footer.setColor(Colors.PURPLE_MAUVE_COLOR);
+
+    if (page > 0) {
+      footer.addExtra(
+          createButton(
+              "←",
+              Colors.PINE_GREEN_COLOR,
+              "/antiac logs " + (page - 1),
+              "Go to the previous page"));
+    } else {
+      footer.addExtra("  ");
+    }
+
+    footer.addExtra(" ——— ");
+
+    if (page < totalPages - 1) {
+      footer.addExtra(
+          createButton(
+              "→", Colors.PINE_GREEN_COLOR, "/antiac logs " + (page + 1), "Go to the next page"));
+    } else {
+      footer.addExtra("  ");
+    }
+
+    footer.addExtra(" ——— ⬢");
+    return footer;
   }
 
   private void sendLogs(Player player, int page) {
     PaginatedList<LogEntry> logEntryPaginatedList = new PaginatedList<>(5);
     logEntryPaginatedList.addAll(logEntryRepository.findAll());
+    int totalPages = logEntryPaginatedList.getTotalPages();
+
     for (LogEntry log : logEntryPaginatedList.getPage(page)) {
       TextComponent message = createLogMessage(log);
       player.spigot().sendMessage(message);
     }
+
+    TextComponent footer = createLogsFooter(page, totalPages);
+    player.spigot().sendMessage(footer);
   }
 
   private TextComponent createLogMessage(LogEntry logEntry) {
@@ -360,8 +392,8 @@ public class AntiACCommand extends BaseCommand {
     return header;
   }
 
-  private TextComponent createFooter(String text) {
-    TextComponent footer = new TextComponent(text);
+  private TextComponent createFooter() {
+    TextComponent footer = new TextComponent("⬢ " + "—".repeat(18) + " ⬢");
     footer.setColor(Colors.PURPLE_MAUVE_COLOR);
     footer.setText(footer.getText());
     return footer;
