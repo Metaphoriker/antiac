@@ -1,4 +1,4 @@
-package de.godcipher.antiac.hibernate;
+package de.godcipher.antiac.hibernate.enums;
 
 import lombok.Getter;
 import lombok.ToString;

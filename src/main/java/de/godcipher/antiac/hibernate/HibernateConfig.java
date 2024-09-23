@@ -4,6 +4,9 @@ import de.godcipher.antiac.AntiAC;
 import de.godcipher.antiac.config.Configuration;
 import java.util.HashMap;
 import java.util.Map;
+
+import de.godcipher.antiac.hibernate.enums.DatabaseDialect;
+import de.godcipher.antiac.hibernate.enums.DatabaseDriver;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Environment;
