@@ -23,9 +23,9 @@ import de.godcipher.antiac.detection.checks.MomentumCheck;
 import de.godcipher.antiac.detection.checks.ScaledCPSCheck;
 import de.godcipher.antiac.detection.reliability.TPSChecker;
 import de.godcipher.antiac.detection.violation.ViolationTracker;
+import de.godcipher.antiac.hibernate.HibernateUtil;
 import de.godcipher.antiac.hibernate.enums.DatabaseDialect;
 import de.godcipher.antiac.hibernate.enums.DatabaseDriver;
-import de.godcipher.antiac.hibernate.HibernateUtil;
 import de.godcipher.antiac.hibernate.repository.impl.LogEntryRepositoryImpl;
 import de.godcipher.antiac.listener.bukkit.PlayerQuitListener;
 import de.godcipher.antiac.listener.protocol.PlayerAttackEntityPacketListener;
@@ -40,7 +40,6 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
 
 @Slf4j
 public final class AntiAC extends JavaPlugin {
@@ -74,31 +73,32 @@ public final class AntiAC extends JavaPlugin {
   @Override
   public void onEnable() {
     instance = this;
-
-    loadConfig();
-    registerChecks();
-
+    initialize();
     setupHibernate();
-    setupMessages();
     setupCommandFramework();
     setupPacketEvents();
-
     initializeBStats();
-
-    startTPSChecker();
-
     registerBukkitListener();
     registerPacketListener();
-
-    runTasks();
-    printRegisteredChecksAmount();
-
-    runUpdateChecker();
-    logEntryRepository.startCacheUpdater();
   }
 
   @Override
   public void onDisable() {
+    shutdown();
+  }
+
+  private void initialize() {
+    loadConfig();
+    registerChecks();
+    setupMessages();
+    startTPSChecker();
+    runTasks();
+    printRegisteredChecksAmount();
+    runUpdateChecker();
+    logEntryRepository.startCacheUpdater();
+  }
+
+  private void shutdown() {
     logEntryRepository.shutdownCacheUpdater();
     HibernateUtil.shutdown();
   }
@@ -126,10 +126,6 @@ public final class AntiAC extends JavaPlugin {
         new AntiACCommand(clickTracker, violationTracker, logEntryRepository, configuration));
   }
 
-  private void stopAllTasks() {
-    Bukkit.getScheduler().cancelTasks(this);
-  }
-
   private void registerCommandCompletions(PaperCommandManager commandManager) {
     commandManager
         .getCommandCompletions()
@@ -154,38 +150,13 @@ public final class AntiAC extends JavaPlugin {
     configuration.reloadConfig();
     loadConfigValues();
     Messages.setup();
+    reloadChecks();
+    printRegisteredChecksAmount();
+  }
+
+  private void reloadChecks() {
     clearChecks();
     registerChecks();
-    reloadScheduler();
-  }
-
-  private void reloadScheduler() {
-    log.debug("AntiAC is reloading...");
-
-    new BukkitRunnable() {
-      RebootStep step = RebootStep.DEACTIVATING;
-
-      @Override
-      public void run() {
-        switch (step) {
-          case DEACTIVATING:
-            step = RebootStep.ACTIVATING;
-            Bukkit.getPluginManager().disablePlugin(AntiAC.this);
-            break;
-          case ACTIVATING:
-            stopAllTasks();
-            step = null;
-            Bukkit.getPluginManager().enablePlugin(AntiAC.this);
-            cancel();
-            break;
-        }
-      }
-    }.runTaskLater(this, 20 * 5);
-  }
-
-  private enum RebootStep {
-    ACTIVATING,
-    DEACTIVATING,
   }
 
   private void loadConfigValues() {
