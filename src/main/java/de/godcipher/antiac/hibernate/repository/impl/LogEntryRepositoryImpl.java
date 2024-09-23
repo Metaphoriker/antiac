@@ -33,8 +33,12 @@ public class LogEntryRepositoryImpl implements LogEntryRepository {
       transaction.commit();
       cacheService.save(logEntry);
     } catch (Exception e) {
-      if (transaction != null) {
-        transaction.rollback();
+      if (transaction != null && transaction.getStatus().canRollback()) {
+        try {
+          transaction.rollback();
+        } catch (Exception rollbackException) {
+          log.error("Failed to rollback transaction", rollbackException);
+        }
       }
       log.error("Failed to save log entry", e);
     }
@@ -68,8 +72,12 @@ public class LogEntryRepositoryImpl implements LogEntryRepository {
       transaction.commit();
       cacheService.delete(logEntry);
     } catch (Exception e) {
-      if (transaction != null) {
-        transaction.rollback();
+      if (transaction != null && transaction.getStatus().canRollback()) {
+        try {
+          transaction.rollback();
+        } catch (Exception rollbackException) {
+          log.error("Failed to rollback transaction", rollbackException);
+        }
       }
       log.error("Failed to delete log entry", e);
     }
