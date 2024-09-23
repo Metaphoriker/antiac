@@ -13,7 +13,7 @@ public class HibernateConfig {
   public static StandardServiceRegistry getHibernateConfiguration() {
     de.godcipher.antiac.config.Configuration config = AntiAC.getInstance().getConfiguration();
     String url = config.getConfigOption("database-url").asString();
-    String user = config.getConfigOption("database-user").asString();
+    String user = config.getConfigOption("database-username").asString();
     String password = config.getConfigOption("database-password").asString();
     String driver = config.getConfigOption("database-driver").asString();
     String dialect = config.getConfigOption("database-dialect").asString();
