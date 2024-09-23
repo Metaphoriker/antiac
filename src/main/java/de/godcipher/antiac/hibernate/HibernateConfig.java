@@ -1,17 +1,17 @@
 package de.godcipher.antiac.hibernate;
 
 import de.godcipher.antiac.AntiAC;
+import de.godcipher.antiac.config.Configuration;
+import java.util.HashMap;
+import java.util.Map;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Environment;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class HibernateConfig {
 
   public static StandardServiceRegistry getHibernateConfiguration() {
-    de.godcipher.antiac.config.Configuration config = AntiAC.getInstance().getConfiguration();
+    Configuration config = AntiAC.getInstance().getConfiguration();
     String url = config.getConfigOption("database-url").asString();
     String user = config.getConfigOption("database-username").asString();
     String password = config.getConfigOption("database-password").asString();

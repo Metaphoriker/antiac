@@ -1,7 +1,6 @@
 package de.godcipher.antiac.hibernate;
 
 import de.godcipher.antiac.hibernate.entity.LogEntry;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.MetadataSources;
@@ -10,7 +9,7 @@ import org.hibernate.boot.registry.StandardServiceRegistry;
 @Slf4j
 public class HibernateUtil {
 
-  @Getter private static SessionFactory sessionFactory;
+  private static SessionFactory sessionFactory;
 
   public static void setupHibernate() {
     try {
@@ -26,6 +25,8 @@ public class HibernateUtil {
   }
 
   public static void shutdown() {
-    getSessionFactory().close();
+    if (sessionFactory != null) {
+      sessionFactory.close();
+    }
   }
 }

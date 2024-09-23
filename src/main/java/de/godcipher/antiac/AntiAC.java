@@ -39,6 +39,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.hibernate.Hibernate;
 
 @Slf4j
 public final class AntiAC extends JavaPlugin {
@@ -98,6 +99,7 @@ public final class AntiAC extends JavaPlugin {
   @Override
   public void onDisable() {
     logEntryRepository.shutdownCacheUpdater();
+    HibernateUtil.shutdown();
   }
 
   private void runUpdateChecker() {
