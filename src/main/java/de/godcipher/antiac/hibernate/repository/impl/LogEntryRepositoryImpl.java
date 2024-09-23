@@ -1,6 +1,7 @@
 package de.godcipher.antiac.hibernate.repository.impl;
 
 import de.godcipher.antiac.hibernate.HibernateUtil;
+import de.godcipher.antiac.hibernate.cache.CacheUpdater;
 import de.godcipher.antiac.hibernate.cache.LogEntryCacheService;
 import de.godcipher.antiac.hibernate.entity.LogEntry;
 import de.godcipher.antiac.hibernate.repository.LogEntryRepository;
@@ -13,6 +14,15 @@ import org.hibernate.Transaction;
 public class LogEntryRepositoryImpl implements LogEntryRepository {
 
   private final LogEntryCacheService cacheService = new LogEntryCacheService();
+  private final CacheUpdater cacheUpdater = new CacheUpdater(this, cacheService);
+
+  public void startCacheUpdater() {
+    cacheUpdater.start();
+  }
+
+  public void shutdownCacheUpdater() {
+    cacheUpdater.stop();
+  }
 
   @Override
   public void save(LogEntry logEntry) {
@@ -46,17 +56,7 @@ public class LogEntryRepositoryImpl implements LogEntryRepository {
 
   @Override
   public List<LogEntry> findAll() {
-    List<LogEntry> logEntries = cacheService.findAll();
-    if (logEntries.isEmpty()) {
-      try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-        logEntries =
-            session
-                .createQuery("from de.godcipher.antiac.hibernate.entity.LogEntry", LogEntry.class)
-                .list();
-        logEntries.forEach(cacheService::save);
-      }
-    }
-    return logEntries;
+    return cacheService.findAll();
   }
 
   @Override

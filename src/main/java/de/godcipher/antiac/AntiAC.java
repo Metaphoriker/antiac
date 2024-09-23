@@ -49,7 +49,9 @@ public final class AntiAC extends JavaPlugin {
   private final Configuration configuration =
       new Configuration(); // do we really want to share this?
 
-  @Getter private final LogEntryRepositoryImpl logEntryRepository = new LogEntryRepositoryImpl(); // +1
+  @Getter
+  private final LogEntryRepositoryImpl logEntryRepository =
+      new LogEntryRepositoryImpl(); // +1 TODO: use interface
 
   private final TPSChecker tpsChecker = new TPSChecker(configuration);
 
@@ -88,10 +90,13 @@ public final class AntiAC extends JavaPlugin {
     printRegisteredChecksAmount();
 
     runUpdateChecker();
+    logEntryRepository.startCacheUpdater();
   }
 
   @Override
-  public void onDisable() {}
+  public void onDisable() {
+    logEntryRepository.shutdownCacheUpdater();
+  }
 
   private void runUpdateChecker() {
     new UpdateChecker(this, UpdateCheckSource.SPIGOT, SPIGOT_RESOURCE_ID)
