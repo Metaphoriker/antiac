@@ -31,6 +31,7 @@ public class HibernateConfig {
     settings.put(Environment.URL, config.getConfigOption(DATABASE_URL).asString());
     settings.put(Environment.USER, config.getConfigOption(DATABASE_USERNAME).asString());
     settings.put(Environment.PASS, config.getConfigOption(DATABASE_PASSWORD).asString());
+    settings.put(Environment.HBM2DDL_AUTO, "update");
     return settings;
   }
 
