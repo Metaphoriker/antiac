@@ -21,7 +21,7 @@ public class ListPaginator<T> {
    * @throws IllegalArgumentException if pageSize is less than or equal to zero
    */
   public ListPaginator(List<T> items, int pageSize) {
-    validatePageSize(pageSize);
+    validateIntGreaterThanZero(pageSize);
     this.items = items;
     this.pageSize = pageSize;
   }
@@ -34,7 +34,7 @@ public class ListPaginator<T> {
    * @throws IllegalArgumentException if pageNumber is negative
    */
   public List<T> getPage(int pageNumber) {
-    validatePageNumber(pageNumber);
+    validateIntNonNegative(pageNumber);
     int fromIndex = pageNumber * pageSize;
     int toIndex = Math.min(fromIndex + pageSize, items.size());
     return getItemsInRange(fromIndex, toIndex);
@@ -49,31 +49,31 @@ public class ListPaginator<T> {
    */
   private @NotNull List<T> getItemsInRange(int fromIndex, int toIndex) {
     if (fromIndex >= items.size()) {
-      return Collections.emptyList(); // Immutable empty list
+      return Collections.emptyList(); // Immutable
     }
     return items.subList(fromIndex, toIndex);
   }
 
   /**
-   * Validates the page size to ensure it is greater than zero.
+   * Validates that the provided integer is greater than zero.
    *
-   * @param pageSize the number of items per page
-   * @throws IllegalArgumentException if pageSize is less than or equal to zero
+   * @param integer the integer value to validate (e.g., page size)
+   * @throws IllegalArgumentException if the integer is less than or equal to zero
    */
-  private void validatePageSize(int pageSize) {
-    if (pageSize <= 0) {
+  private void validateIntGreaterThanZero(int integer) {
+    if (integer <= 0) {
       throw new IllegalArgumentException("Page size must be greater than zero.");
     }
   }
 
   /**
-   * Validates the page number to ensure it is non-negative.
+   * Validates that the provided integer is non-negative.
    *
-   * @param pageNumber the page number (zero-based index)
-   * @throws IllegalArgumentException if pageNumber is negative
+   * @param integer the integer value to validate (e.g., page number)
+   * @throws IllegalArgumentException if the integer is negative
    */
-  private void validatePageNumber(int pageNumber) {
-    if (pageNumber < 0) {
+  private void validateIntNonNegative(int integer) {
+    if (integer < 0) {
       throw new IllegalArgumentException("Page number must be non-negative.");
     }
   }
