@@ -25,7 +25,7 @@ jobs:
       - name: Set JAR name
         id: set_jar_name
         run: |
-          if [[ ${{ github.ref_name }} == 'BETA' ]]; then
+          if [[ ${{ github.ref_name }} =~ ^BETA ]]; then
             echo "JAR_NAME=BETA-antiac-${{ env.VERSION }}.jar" >> $GITHUB_ENV
           else
             echo "JAR_NAME=antiac-${{ env.VERSION }}.jar" >> $GITHUB_ENV
