@@ -3,8 +3,8 @@ package de.godcipher.antiac.detection.checks;
 import de.godcipher.antiac.click.CPS;
 import de.godcipher.antiac.click.Click;
 import de.godcipher.antiac.click.ClickTracker;
-import de.godcipher.antiac.config.ConfigurationOption;
 import de.godcipher.antiac.detection.Check;
+import de.godcipher.comet.ConfigurationOption;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.bukkit.entity.Player;
@@ -34,8 +34,8 @@ public class ScaledCPSCheck extends Check {
   }
 
   private void setConfigValues() {
-    totalDelayMs = getCheckConfiguration().getConfigOption(TOTAL_DELAY_MS_CONFIG).asInteger();
-    minClicks = getCheckConfiguration().getConfigOption(MIN_CLICKS_CONFIG).asInteger();
+    totalDelayMs = (int) getCheckConfiguration().getConfigOption(TOTAL_DELAY_MS_CONFIG).getValue();
+    minClicks = (int) getCheckConfiguration().getConfigOption(MIN_CLICKS_CONFIG).getValue();
   }
 
   @Override
@@ -99,12 +99,12 @@ public class ScaledCPSCheck extends Check {
     getCheckConfiguration()
         .setConfigOption(
             TOTAL_DELAY_MS_CONFIG,
-            ConfigurationOption.ofInteger(
-                2500, "The total delay in milliseconds for 0-100 clicks."));
+            new ConfigurationOption<>(2500, "The total delay in milliseconds for 0-100 clicks."));
     getCheckConfiguration()
         .setConfigOption(
             MIN_CLICKS_CONFIG,
-            ConfigurationOption.ofInteger(
+            new ConfigurationOption<>(
                 10, "The minimum number of clicks required to perform the check."));
+    saveConfiguration();
   }
 }

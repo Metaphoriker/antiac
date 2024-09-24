@@ -2,8 +2,8 @@ package de.godcipher.antiac.detection;
 
 import de.godcipher.antiac.click.CPS;
 import de.godcipher.antiac.click.ClickTracker;
-import de.godcipher.antiac.config.ConfigurationOption;
 import de.godcipher.antiac.detection.service.PlayerFlaggingService;
+import de.godcipher.comet.ConfigurationOption;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.Getter;
@@ -43,6 +43,10 @@ public abstract class Check {
     checkConfiguration.setConfigOption(key, new ConfigurationOption<>(value, getComment(key)));
   }
 
+  protected void saveConfiguration() {
+    checkConfiguration.saveConfiguration();
+  }
+
   private String getComment(String key) {
     return checkConfiguration.getConfigOption(key).getComment();
   }
@@ -51,7 +55,7 @@ public abstract class Check {
     if (canLoad()) {
       loaded = true;
       onLoad();
-      checkConfiguration.loadConfig();
+      checkConfiguration.reloadConfig();
     }
   }
 

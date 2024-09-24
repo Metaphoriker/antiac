@@ -1,7 +1,7 @@
 package de.godcipher.antiac.detection.reliability;
 
 import de.godcipher.antiac.AntiAC;
-import de.godcipher.antiac.config.Configuration;
+import de.godcipher.comet.Configuration;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.scheduler.BukkitRunnable;

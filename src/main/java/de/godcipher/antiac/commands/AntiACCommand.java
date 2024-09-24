@@ -6,7 +6,6 @@ import de.godcipher.antiac.AntiAC;
 import de.godcipher.antiac.click.CPS;
 import de.godcipher.antiac.click.ClickTracker;
 import de.godcipher.antiac.click.ClickType;
-import de.godcipher.antiac.config.Configuration;
 import de.godcipher.antiac.detection.Check;
 import de.godcipher.antiac.detection.violation.ViolationTracker;
 import de.godcipher.antiac.hibernate.entity.LogEntry;
@@ -14,6 +13,7 @@ import de.godcipher.antiac.hibernate.repository.LogEntryRepository;
 import de.godcipher.antiac.messages.Colors;
 import de.godcipher.antiac.messages.Messages;
 import de.godcipher.antiac.utils.PaginatedList;
+import de.godcipher.comet.Configuration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -51,7 +51,7 @@ public class AntiACCommand extends BaseCommand {
     this.clickTracker = clickTracker;
     this.violationTracker = violationTracker;
     this.logEntryRepository = logEntryRepository;
-    this.modernFeedback = configuration.getConfigOption("modern-feedback").asBoolean();
+    this.modernFeedback = (boolean) configuration.getConfigOption("modern-feedback").getValue();
   }
 
   @Default
@@ -222,7 +222,9 @@ public class AntiACCommand extends BaseCommand {
   @CommandPermission("antiac.logs")
   @Description("List all logs")
   public void onLogs(Player player, @Optional Integer page) {
-    if (!AntiAC.getInstance().getConfiguration().getConfigOption("logging").asBoolean()) {
+    boolean logging =
+        (boolean) AntiAC.getInstance().getConfiguration().getConfigOption("logging").getValue();
+    if (!logging) {
       sendFeedback(
           player,
           Colors.PURPLE_MAUVE_COLOR,
@@ -323,7 +325,7 @@ public class AntiACCommand extends BaseCommand {
 
   private void startCheckTask(Player player, Player target) {
     boolean isViolationsActive =
-        AntiAC.getInstance().getConfiguration().getConfigOption("violations").asBoolean();
+        (boolean) AntiAC.getInstance().getConfiguration().getConfigOption("violations").getValue();
 
     new BukkitRunnable() {
       int maxCPS;

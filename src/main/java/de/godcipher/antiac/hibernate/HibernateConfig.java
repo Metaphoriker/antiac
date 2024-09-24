@@ -1,9 +1,9 @@
 package de.godcipher.antiac.hibernate;
 
 import de.godcipher.antiac.AntiAC;
-import de.godcipher.antiac.config.Configuration;
 import de.godcipher.antiac.hibernate.enums.DatabaseDialect;
 import de.godcipher.antiac.hibernate.enums.DatabaseDriver;
+import de.godcipher.comet.Configuration;
 import java.util.HashMap;
 import java.util.Map;
 import org.hibernate.boot.registry.StandardServiceRegistry;
@@ -28,20 +28,20 @@ public class HibernateConfig {
     Map<String, Object> settings = new HashMap<>();
     settings.put(Environment.DRIVER, getDriverClass(config));
     settings.put(Environment.DIALECT, getDialectClass(config));
-    settings.put(Environment.URL, config.getConfigOption(DATABASE_URL).asString());
-    settings.put(Environment.USER, config.getConfigOption(DATABASE_USERNAME).asString());
-    settings.put(Environment.PASS, config.getConfigOption(DATABASE_PASSWORD).asString());
+    settings.put(Environment.URL, config.getConfigOption(DATABASE_URL).getValue());
+    settings.put(Environment.USER, config.getConfigOption(DATABASE_USERNAME).getValue());
+    settings.put(Environment.PASS, config.getConfigOption(DATABASE_PASSWORD).getValue());
     settings.put(Environment.HBM2DDL_AUTO, "update");
     return settings;
   }
 
   private static String getDriverClass(Configuration config) {
-    String driver = config.getConfigOption(DATABASE_DRIVER).asString();
+    String driver = (String) config.getConfigOption(DATABASE_DRIVER).getValue();
     return DatabaseDriver.valueOf(driver.toUpperCase()).getDriverClass();
   }
 
   private static String getDialectClass(Configuration config) {
-    String dialect = config.getConfigOption(DATABASE_DIALECT).asString();
+    String dialect = (String) config.getConfigOption(DATABASE_DIALECT).getValue();
     return DatabaseDialect.valueOf(dialect.toUpperCase()).getDialectClass();
   }
 

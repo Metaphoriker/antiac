@@ -1,8 +1,8 @@
 package de.godcipher.antiac.detection.checks;
 
 import de.godcipher.antiac.click.ClickTracker;
-import de.godcipher.antiac.config.ConfigurationOption;
 import de.godcipher.antiac.detection.Check;
+import de.godcipher.comet.ConfigurationOption;
 import lombok.extern.slf4j.Slf4j;
 import org.bukkit.entity.Player;
 
@@ -27,7 +27,7 @@ public class ClickLimitCheck extends Check {
   }
 
   private void setConfigValue() {
-    clickLimit = getCheckConfiguration().getConfigOption(LIMIT_CONFIG).asInteger();
+    clickLimit = (int) getCheckConfiguration().getConfigOption(LIMIT_CONFIG).getValue();
   }
 
   @Override
@@ -40,7 +40,7 @@ public class ClickLimitCheck extends Check {
 
   private void setupDefaults() {
     getCheckConfiguration()
-        .setConfigOption(
-            LIMIT_CONFIG, ConfigurationOption.ofInteger(40, "The upper limit of the CPS"));
+        .setConfigOption(LIMIT_CONFIG, new ConfigurationOption<>(40, "The upper limit of the CPS"));
+    saveConfiguration();
   }
 }

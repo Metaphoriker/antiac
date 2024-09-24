@@ -3,8 +3,8 @@ package de.godcipher.antiac.detection.checks;
 import de.godcipher.antiac.click.CPS;
 import de.godcipher.antiac.click.Click;
 import de.godcipher.antiac.click.ClickTracker;
-import de.godcipher.antiac.config.ConfigurationOption;
 import de.godcipher.antiac.detection.Check;
+import de.godcipher.comet.ConfigurationOption;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -38,10 +38,10 @@ public class MomentumCheck extends Check {
   }
 
   private void setConfigValues() {
-    CPSThreshold = getCheckConfiguration().getConfigOption(CPS_THRESHOLD_CONFIG).asInteger();
+    CPSThreshold = (int) getCheckConfiguration().getConfigOption(CPS_THRESHOLD_CONFIG).getValue();
     percentageThreshold =
-        getCheckConfiguration().getConfigOption(PERCENTAGE_THRESHOLD_CONFIG).asInteger();
-    windowSize = getCheckConfiguration().getConfigOption(WINDOW_SIZE_CONFIG).asInteger();
+        (int) getCheckConfiguration().getConfigOption(PERCENTAGE_THRESHOLD_CONFIG).getValue();
+    windowSize = (int) getCheckConfiguration().getConfigOption(WINDOW_SIZE_CONFIG).getValue();
   }
 
   @Override
@@ -129,14 +129,15 @@ public class MomentumCheck extends Check {
   private void setupDefaults() {
     getCheckConfiguration()
         .setConfigOption(
-            CPS_THRESHOLD_CONFIG, ConfigurationOption.ofInteger(20, "The number of CPS to check"));
+            CPS_THRESHOLD_CONFIG, new ConfigurationOption<>(20, "The number of CPS to check"));
     getCheckConfiguration()
         .setConfigOption(
             PERCENTAGE_THRESHOLD_CONFIG,
-            ConfigurationOption.ofInteger(75, "The maximum percentage slope to trigger on"));
+            new ConfigurationOption<>(75, "The maximum percentage slope to trigger on"));
     getCheckConfiguration()
         .setConfigOption(
             WINDOW_SIZE_CONFIG,
-            ConfigurationOption.ofInteger(5, "The window size for rolling slope calculation"));
+            new ConfigurationOption<>(5, "The window size for rolling slope calculation"));
+    saveConfiguration();
   }
 }

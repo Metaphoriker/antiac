@@ -1,7 +1,7 @@
 package de.godcipher.antiac.detection;
 
-import de.godcipher.antiac.config.Configuration;
 import de.godcipher.antiac.detection.violation.ViolationTracker;
+import de.godcipher.comet.Configuration;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;

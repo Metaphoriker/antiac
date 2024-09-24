@@ -3,8 +3,8 @@ package de.godcipher.antiac.detection.checks;
 import de.godcipher.antiac.click.CPS;
 import de.godcipher.antiac.click.Click;
 import de.godcipher.antiac.click.ClickTracker;
-import de.godcipher.antiac.config.ConfigurationOption;
 import de.godcipher.antiac.detection.Check;
+import de.godcipher.comet.ConfigurationOption;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.bukkit.entity.Player;
@@ -33,9 +33,10 @@ public class DoubleClickCheck extends Check {
 
   private void setConfigValues() {
     requiredConsecutiveSuspiciousClicks =
-        getCheckConfiguration()
-            .getConfigOption(REQUIRED_CONSECUTIVE_SUSPICIOUS_CLICKS_CONFIG)
-            .asInteger();
+        (int)
+            getCheckConfiguration()
+                .getConfigOption(REQUIRED_CONSECUTIVE_SUSPICIOUS_CLICKS_CONFIG)
+                .getValue();
   }
 
   @Override
@@ -73,7 +74,8 @@ public class DoubleClickCheck extends Check {
     getCheckConfiguration()
         .setConfigOption(
             REQUIRED_CONSECUTIVE_SUSPICIOUS_CLICKS_CONFIG,
-            ConfigurationOption.ofInteger(
+            new ConfigurationOption<>(
                 3, "The number of consecutive suspicious clicks required to flag"));
+    saveConfiguration();
   }
 }

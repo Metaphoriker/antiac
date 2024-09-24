@@ -11,8 +11,6 @@ import de.godcipher.antiac.bstats.BStatsHandler;
 import de.godcipher.antiac.click.ClickTracker;
 import de.godcipher.antiac.click.ClickType;
 import de.godcipher.antiac.commands.AntiACCommand;
-import de.godcipher.antiac.config.Configuration;
-import de.godcipher.antiac.config.ConfigurationOption;
 import de.godcipher.antiac.detection.Check;
 import de.godcipher.antiac.detection.CheckRegistry;
 import de.godcipher.antiac.detection.checks.AFKClickingCheck;
@@ -32,7 +30,10 @@ import de.godcipher.antiac.listener.protocol.PlayerAttackEntityPacketListener;
 import de.godcipher.antiac.messages.Messages;
 import de.godcipher.antiac.tasks.CheckExecutionTask;
 import de.godcipher.antiac.tasks.ClearViolationsTask;
+import de.godcipher.comet.Configuration;
+import de.godcipher.comet.ConfigurationOption;
 import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder;
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -47,16 +48,13 @@ public final class AntiAC extends JavaPlugin {
 
   @Getter private static AntiAC instance;
 
-  @Getter
-  private final Configuration configuration =
-      new Configuration(); // do we really want to share this?
+  @Getter private final Configuration configuration = new Configuration();
 
   @Getter
   private final LogEntryRepositoryImpl logEntryRepository =
       new LogEntryRepositoryImpl(); // +1 TODO: use interface
 
   private final TPSChecker tpsChecker = new TPSChecker(configuration);
-
   @Getter private final ClickTracker clickTracker = new ClickTracker(configuration);
   @Getter private final ViolationTracker violationTracker = new ViolationTracker();
 
@@ -110,7 +108,8 @@ public final class AntiAC extends JavaPlugin {
   }
 
   private void setupHibernate() {
-    if (getConfiguration().getConfigOption("logging").asBoolean()) HibernateUtil.setupHibernate();
+    boolean logging = (boolean) getConfiguration().getConfigOption("logging").getValue();
+    if (logging) HibernateUtil.setupHibernate();
   }
 
   private void setupMessages() {
@@ -133,13 +132,12 @@ public final class AntiAC extends JavaPlugin {
             completionHandler ->
                 checkRegistry.getChecks().stream()
                     .map(Check::getName)
-                    .collect(Collectors.toCollection(List::of)));
+                    .collect(Collectors.toList()));
   }
 
   private void loadConfig() {
-    getConfig().options().copyDefaults(true);
-    saveDefaultConfig();
-    configuration.setupFile("config.yml", null);
+    File configFile = new File(getDataFolder(), "config.yml");
+    configuration.setupFile(configFile); // Setup configuration using your library
     loadConfigValues();
   }
 
@@ -161,10 +159,10 @@ public final class AntiAC extends JavaPlugin {
         "cps-storage-limit",
         new ConfigurationOption<>(30, "Stores the last x CPS internally to process"));
     List<String> clickTypes =
-        Arrays.stream(ClickType.values()).map(Enum::name).collect(Collectors.toList());
+        Arrays.stream(ClickType.values()).map(Enum::name).toList();
     configuration.setConfigOption(
         "allowed-clicktypes",
-        new ConfigurationOption<>(
+        ConfigurationOption.ofStringList(
             clickTypes, "What click types should AntiAC track? " + clickTypes));
     configuration.setConfigOption(
         "modern-feedback", new ConfigurationOption<>(true, "Enable modern feedback"));
@@ -183,7 +181,7 @@ public final class AntiAC extends JavaPlugin {
         new ConfigurationOption<>("", Arrays.toString(getOnlyEnumNames(DatabaseDialect.class))));
     configuration.setConfigOption(
         "commands",
-        ConfigurationOption.ofStringList(
+        new ConfigurationOption<>(
             List.of("kick %player%", "say %player% got flagged by %check% check!"),
             "Commands to execute when a player gets flagged"));
     configuration.setConfigOption(
@@ -198,7 +196,7 @@ public final class AntiAC extends JavaPlugin {
     configuration.setConfigOption(
         "bedrock-players",
         new ConfigurationOption<>(false, "Whether the server allows bedrock players"));
-    configuration.loadConfig();
+    configuration.saveConfiguration();
   }
 
   private String[] getOnlyEnumNames(Class<? extends Enum<?>> enumClass) {

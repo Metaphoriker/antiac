@@ -93,6 +93,10 @@
             <id>jeff-media-public</id>
             <url>https://repo.jeff-media.com/public/</url>
         </repository>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -151,6 +155,11 @@
             <groupId>co.aikar</groupId>
             <artifactId>acf-paper</artifactId>
             <version>0.5.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.godcipher</groupId>
+            <artifactId>comet</artifactId>
+            <version>1.0.2</version>
         </dependency>
     </dependencies>
 </project>

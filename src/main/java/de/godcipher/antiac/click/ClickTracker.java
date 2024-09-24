@@ -1,6 +1,6 @@
 package de.godcipher.antiac.click;
 
-import de.godcipher.antiac.config.Configuration;
+import de.godcipher.comet.Configuration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

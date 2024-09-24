@@ -2,8 +2,8 @@ package de.godcipher.antiac.detection.checks;
 
 import de.godcipher.antiac.click.CPS;
 import de.godcipher.antiac.click.ClickTracker;
-import de.godcipher.antiac.config.ConfigurationOption;
 import de.godcipher.antiac.detection.Check;
+import de.godcipher.comet.ConfigurationOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -41,7 +41,8 @@ public class AFKClickingCheck extends Check {
   }
 
   private void setConfigValue() {
-    afkAfterSeconds = getCheckConfiguration().getConfigOption(AFK_AFTER_SECONDS_CONFIG).asInteger();
+    afkAfterSeconds =
+        (int) getCheckConfiguration().getConfigOption(AFK_AFTER_SECONDS_CONFIG).getValue();
   }
 
   @Override
@@ -104,5 +105,6 @@ public class AFKClickingCheck extends Check {
         .setConfigOption(
             AFK_AFTER_SECONDS_CONFIG,
             new ConfigurationOption<>(10, "Number of seconds before a player is considered AFK"));
+    saveConfiguration();
   }
 }
