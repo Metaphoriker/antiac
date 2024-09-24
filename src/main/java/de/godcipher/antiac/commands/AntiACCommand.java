@@ -289,8 +289,8 @@ public class AntiACCommand extends BaseCommand {
   }
 
   private void sendLogs(Player player, int page) {
-    ListPaginator<LogEntry> logEntryListPaginator = new ListPaginator<>(5);
-    logEntryListPaginator.addAll(logEntryRepository.findAll());
+    ListPaginator<LogEntry> logEntryListPaginator =
+        new ListPaginator<>(logEntryRepository.findAll(), 5);
     int totalPages = logEntryListPaginator.getTotalPages();
 
     for (LogEntry log : logEntryListPaginator.getPage(page)) {
