@@ -23,7 +23,10 @@ public class ClickLimitCheck extends Check {
   @Override
   protected void onLoad() {
     setupDefaults();
+    setConfigValue();
+  }
 
+  private void setConfigValue() {
     clickLimit = getCheckConfiguration().getConfigOption(LIMIT_CONFIG).asInteger();
   }
 

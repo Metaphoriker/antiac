@@ -19,10 +19,10 @@ public class Configuration {
   private FileConfiguration config;
 
   public void setupFile(String fileName, String filePath) {
-    createDirectoryIfNeeded(filePath);
+    createDirectoryIfNotExists(filePath);
     this.file = createFile(fileName, filePath);
     this.config = YamlConfiguration.loadConfiguration(file);
-    createFiles();
+    createFileIfNotExists();
   }
 
   public void setConfigOption(String key, ConfigurationOption<?> option) {
@@ -52,7 +52,7 @@ public class Configuration {
     }
   }
 
-  private void createDirectoryIfNeeded(String filePath) {
+  private void createDirectoryIfNotExists(String filePath) {
     if (filePath != null) {
       File directory = new File(AntiAC.getInstance().getDataFolder(), filePath);
       if (!directory.exists()) {
@@ -71,43 +71,61 @@ public class Configuration {
 
   private void generateAndMergeConfig() {
     try (PrintWriter writer = new PrintWriter(file)) {
-      writer.println("# Config version: " + AntiAC.getInstance().getDescription().getVersion());
-      writer.println("# Configuration settings:\n");
-
-      for (Map.Entry<String, ConfigurationOption<?>> entry : configOptions.entrySet()) {
-        writeConfigOption(writer, entry.getKey(), entry.getValue());
-      }
-
+      writeConfigHeader(writer);
+      writeConfigOptions(writer);
     } catch (IOException e) {
       log.error("Could not generate configuration file: {}", file.getName(), e);
     }
   }
 
-  private void writeConfigOption(PrintWriter writer, String key, ConfigurationOption<?> option) {
-    String comment = option.getComment();
-    if (comment != null && !comment.isEmpty()) {
-      writer.println("# " + comment);
+  private void writeConfigOptions(PrintWriter writer) {
+    for (Map.Entry<String, ConfigurationOption<?>> entry : configOptions.entrySet()) {
+      writeConfigOption(writer, entry.getKey(), entry.getValue());
     }
+  }
 
+  private static void writeConfigHeader(PrintWriter writer) {
+    writer.println("# Config version: " + AntiAC.getInstance().getDescription().getVersion());
+    writer.println("# Configuration settings:\n");
+  }
+
+  private void writeConfigOption(PrintWriter writer, String key, ConfigurationOption<?> option) {
+    writeComment(writer, option);
+    writeKeyAndValue(writer, key, option);
+    writer.println();
+  }
+
+  private void writeKeyAndValue(PrintWriter writer, String key, ConfigurationOption<?> option) {
     Object value = config.contains(key) ? config.get(key) : option.getValue();
     if (!key.isEmpty()) {
       writer.printf("%s: %s%n", key, value);
     }
-    writer.println();
+  }
+
+  private static void writeComment(PrintWriter writer, ConfigurationOption<?> option) {
+    String comment = option.getComment();
+    if (comment != null && !comment.isEmpty()) {
+      writer.println("# " + comment);
+    }
   }
 
   private void loadFromConfig() {
     for (Map.Entry<String, ConfigurationOption<?>> entry : configOptions.entrySet()) {
       String key = entry.getKey();
       ConfigurationOption<?> option = entry.getValue();
-      if (config.contains(key)) {
-        Object newValue = config.get(key);
-        entry.setValue(new ConfigurationOption<>(newValue, option.getComment()));
-      }
+      setNewValue(entry, key, option);
     }
   }
 
-  private void createFiles() {
+  private void setNewValue(
+      Map.Entry<String, ConfigurationOption<?>> entry, String key, ConfigurationOption<?> option) {
+    if (config.contains(key)) {
+      Object newValue = config.get(key);
+      entry.setValue(new ConfigurationOption<>(newValue, option.getComment()));
+    }
+  }
+
+  private void createFileIfNotExists() {
     if (!file.exists()) {
       try {
         file.createNewFile();

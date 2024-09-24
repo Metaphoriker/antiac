@@ -28,7 +28,10 @@ public class DoubleClickCheck extends Check {
   @Override
   protected void onLoad() {
     setupDefaults();
+    setConfigValues();
+  }
 
+  private void setConfigValues() {
     requiredConsecutiveSuspiciousClicks =
         getCheckConfiguration()
             .getConfigOption(REQUIRED_CONSECUTIVE_SUSPICIOUS_CLICKS_CONFIG)
@@ -43,29 +46,27 @@ public class DoubleClickCheck extends Check {
     CPS cps = clickTracker.getLatestCPS(player.getUniqueId());
     if (cps.isEmpty()) return false;
     List<Long> clicks = cps.getClicks().stream().map(Click::getTime).toList();
+    if (clicks.size() < 3) return false;
+    return suspiciousClicksExceedsLimit(clicks);
+  }
 
-    if (clicks.size() < 3) {
-      return false;
-    }
+  private boolean suspiciousClicksExceedsLimit(List<Long> clicks) {
+    return calculateConsecutiveSuspiciousClicks(clicks) >= requiredConsecutiveSuspiciousClicks;
+  }
 
+  private int calculateConsecutiveSuspiciousClicks(List<Long> clicks) {
     int consecutiveSuspiciousClicks = 0;
-
     for (int i = 0; i < clicks.size() - 1; i++) {
       long first = clicks.get(i);
       long second = clicks.get(i + 1);
 
-      // if the time difference between consecutive clicks is 0 or 1 ms, it's suspicious
       if (Math.abs(second - first) <= 1) {
         consecutiveSuspiciousClicks++;
-        if (consecutiveSuspiciousClicks >= requiredConsecutiveSuspiciousClicks) {
-          return true;
-        }
       } else {
         consecutiveSuspiciousClicks = 0;
       }
     }
-
-    return false;
+    return consecutiveSuspiciousClicks;
   }
 
   private void setupDefaults() {

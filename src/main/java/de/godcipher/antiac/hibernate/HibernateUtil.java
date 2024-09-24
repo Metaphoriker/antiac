@@ -15,13 +15,17 @@ public class HibernateUtil {
   public static void setupHibernate() {
     try {
       StandardServiceRegistry registry = HibernateConfig.getHibernateConfiguration();
-      MetadataSources sources = new MetadataSources(registry);
-      sources.addAnnotatedClass(LogEntry.class);
-      sessionFactory = sources.buildMetadata().buildSessionFactory();
+      sessionFactory = buildSessionFactory(registry);
     } catch (Exception e) {
       log.error("SessionFactory creation failed", e);
-      throw new ExceptionInInitializerError("Initial SessionFactory creation failed" + e);
+      throw new ExceptionInInitializerError("Initial SessionFactory creation failed: " + e);
     }
+  }
+
+  private static SessionFactory buildSessionFactory(StandardServiceRegistry registry) {
+    MetadataSources sources = new MetadataSources(registry);
+    sources.addAnnotatedClass(LogEntry.class);
+    return sources.buildMetadata().buildSessionFactory();
   }
 
   public static Session openSession() {

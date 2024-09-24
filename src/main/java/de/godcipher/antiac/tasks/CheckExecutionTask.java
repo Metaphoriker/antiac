@@ -24,12 +24,14 @@ public class CheckExecutionTask implements Runnable {
       log.debug("TPS is not reliable, skipping check execution");
       return;
     }
+    processOnlinePlayers();
+    cleanupOldCPS();
+  }
 
+  private void processOnlinePlayers() {
     for (Player player : Bukkit.getOnlinePlayers()) {
       processPlayer(player);
     }
-
-    cleanupOldCPS();
   }
 
   private void processPlayer(Player player) {

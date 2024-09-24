@@ -15,12 +15,20 @@ public class PlayerAttackEntityPacketListener extends BasePlayerPacketListener {
 
   @Override
   public void onPacketReceive(PacketReceiveEvent event) {
-    if (event.getPacketType() == PacketType.Play.Client.INTERACT_ENTITY) {
-      WrapperPlayClientInteractEntity interactEntityPacket =
-          new WrapperPlayClientInteractEntity(event);
-      if (!isAttack(interactEntityPacket.getAction())) return;
+    if (isInteractEntityPacket(event)) {
+      handleInteractEntityPacket(event);
+    }
+  }
 
-      Player player = (Player) event.getPlayer();
+  private boolean isInteractEntityPacket(PacketReceiveEvent event) {
+    return event.getPacketType() == PacketType.Play.Client.INTERACT_ENTITY;
+  }
+
+  private void handleInteractEntityPacket(PacketReceiveEvent event) {
+    WrapperPlayClientInteractEntity interactEntityPacket =
+        new WrapperPlayClientInteractEntity(event);
+    if (isAttack(interactEntityPacket.getAction())) {
+      Player player = event.getPlayer();
       handleClick(player, ClickType.ATTACK);
     }
   }

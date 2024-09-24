@@ -30,7 +30,10 @@ public class ScaledCPSCheck extends Check {
   @Override
   protected void onLoad() {
     setupDefaults();
+    setConfigValues();
+  }
 
+  private void setConfigValues() {
     totalDelayMs = getCheckConfiguration().getConfigOption(TOTAL_DELAY_MS_CONFIG).asInteger();
     minClicks = getCheckConfiguration().getConfigOption(MIN_CLICKS_CONFIG).asInteger();
   }
@@ -43,11 +46,9 @@ public class ScaledCPSCheck extends Check {
     CPS cps = clickTracker.getLatestCPS(player.getUniqueId());
     if (isInvalidClickData(cps)) return false;
 
-    // Get actual click delay and calculate expected delay for current CPS
     double actualTotalDelay = calculateTotalDelay(cps.getClicks());
     double expectedScaledDelay = scaleCPSDelay(cps.getCPS());
 
-    // Flag player if their actual delay is too low compared to the expected delay
     if (actualTotalDelay < expectedScaledDelay) {
       log.debug(
           "Player: {} flagged for low total click delay. Actual: {}, Expected: {}",
@@ -62,7 +63,6 @@ public class ScaledCPSCheck extends Check {
   }
 
   private boolean isInvalidClickData(CPS cps) {
-    // Validate that the player has clicked enough times to be analyzed
     return cps.isEmpty() || cps.getClicks().size() < minClicks;
   }
 
@@ -91,10 +91,8 @@ public class ScaledCPSCheck extends Check {
    * @return the expected scaled delay for the given CPS
    */
   private double scaleCPSDelay(int cps) {
-    // Scale the delay for the player's CPS. For example, if CPS is 26, scale the total delay
-    // for 0-26 clicks against the total delay for 0-100 clicks.
-    double scalingFactor = (double) cps / 100; // Scale factor based on CPS
-    return scalingFactor * totalDelayMs; // Expected delay scaled for the player's CPS
+    double scalingFactor = (double) cps / 100;
+    return scalingFactor * totalDelayMs;
   }
 
   private void setupDefaults() {

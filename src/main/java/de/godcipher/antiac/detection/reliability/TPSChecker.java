@@ -20,7 +20,10 @@ public class TPSChecker {
 
   public void start() {
     reliableTpsThreshold = (int) configuration.getConfigOption("tps-protection").getValue();
+    schedule();
+  }
 
+  private void schedule() {
     new BukkitRunnable() {
       @Override
       public void run() {
@@ -34,12 +37,13 @@ public class TPSChecker {
   }
 
   private void tick() {
-    tick++;
-    if (tick == 20) {
-      tps = calculateTPS();
-      tick = 0;
-      lastFinish = System.currentTimeMillis();
-    }
+    if (tick++ == 20) finish();
+  }
+
+  private void finish() {
+    tps = calculateTPS();
+    tick = 0;
+    lastFinish = System.currentTimeMillis();
   }
 
   private double calculateTPS() {

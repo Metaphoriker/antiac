@@ -23,9 +23,9 @@ public class MomentumCheck extends Check {
   private static final String CPS_THRESHOLD_CONFIG = "cps-threshold";
   private static final String WINDOW_SIZE_CONFIG = "window-size";
 
-  private int CPSThreshold = -1; // Number of CPS to check
-  private int percentageThreshold = -1; // Max percentage slope
-  private int windowSize = -1; // Size of each rolling window
+  private int CPSThreshold = -1;
+  private int percentageThreshold = -1;
+  private int windowSize = -1;
 
   public MomentumCheck(ClickTracker clickTracker) {
     super(clickTracker);
@@ -34,7 +34,10 @@ public class MomentumCheck extends Check {
   @Override
   protected void onLoad() {
     setupDefaults();
+    setConfigValues();
+  }
 
+  private void setConfigValues() {
     CPSThreshold = getCheckConfiguration().getConfigOption(CPS_THRESHOLD_CONFIG).asInteger();
     percentageThreshold =
         getCheckConfiguration().getConfigOption(PERCENTAGE_THRESHOLD_CONFIG).asInteger();
@@ -54,8 +57,7 @@ public class MomentumCheck extends Check {
     }
 
     double rollingSlope = calculateRollingSlope(setToProcess);
-    double slopePercentage =
-        Math.abs(rollingSlope * 100); // Take absolute value to handle negative slopes
+    double slopePercentage = Math.abs(rollingSlope * 100); // abs for negative slopes
 
     return slopePercentage > percentageThreshold;
   }
@@ -80,7 +82,6 @@ public class MomentumCheck extends Check {
     double totalSlope = 0;
     int slopeCount = 0;
 
-    // Calculate the slope for each rolling window
     for (int i = 0; i <= validCps.size() - windowSize; i++) {
       List<CPS> window = validCps.subList(i, i + windowSize);
       double slope = calculateSlope(window);
@@ -88,7 +89,6 @@ public class MomentumCheck extends Check {
       slopeCount++;
     }
 
-    // Return the average slope across all windows to reduce noise
     return totalSlope / slopeCount;
   }
 

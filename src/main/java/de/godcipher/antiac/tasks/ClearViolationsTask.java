@@ -19,9 +19,13 @@ public class ClearViolationsTask implements Runnable {
     for (Map.Entry<UUID, Violation> entry : violationTracker.getAllViolations().entrySet()) {
       UUID playerId = entry.getKey();
       Violation violation = entry.getValue();
-      if (violation.getLastModified().plusMillis(CLEAR_INTERVAL).isBefore(Instant.now())) {
-        violationTracker.resetViolation(playerId);
-      }
+      resetViolationsIfExceeded(violation, playerId);
+    }
+  }
+
+  private void resetViolationsIfExceeded(Violation violation, UUID playerId) {
+    if (violation.getLastModified().plusMillis(CLEAR_INTERVAL).isBefore(Instant.now())) {
+      violationTracker.resetViolation(playerId);
     }
   }
 }

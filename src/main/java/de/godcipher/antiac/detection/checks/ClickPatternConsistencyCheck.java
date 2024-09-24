@@ -13,7 +13,7 @@ import org.bukkit.entity.Player;
 public class ClickPatternConsistencyCheck extends Check {
 
   private static final String CLICK_THRESHOLD_CONFIG = "click-threshold";
-  private static final String MIN_DEVIATION_THRESHOLD_CONFIG = "mind-deviation-threshold";
+  private static final String MIN_DEVIATION_THRESHOLD_CONFIG = "min-deviation-threshold";
   private static final String JITTER_THRESHOLD_CONFIG = "jitter-threshold";
   private static final String SMALL_WINDOW_CONFIG = "small-window";
   private static final String IDENTICAL_DELAY_THRESHOLD_CONFIG = "identical-delay-threshold";
@@ -31,7 +31,7 @@ public class ClickPatternConsistencyCheck extends Check {
   @Override
   protected void onLoad() {
     setupDefaults();
-    initializeConfigValues();
+    setConfigValues();
   }
 
   @Override
@@ -40,7 +40,6 @@ public class ClickPatternConsistencyCheck extends Check {
   @Override
   public boolean check(Player player) {
     CPS cps = clickTracker.getLatestCPS(player.getUniqueId());
-
     if (isInvalidClickData(cps)) return false;
 
     double averageDelay = calculateAverageDelay(cps.getClicks(), clickThreshold);
@@ -88,12 +87,14 @@ public class ClickPatternConsistencyCheck extends Check {
             ConfigurationOption.ofInteger(3, "Threshold for identical delays."));
   }
 
-  private void initializeConfigValues() {
-    clickThreshold = getIntegerConfigValue(CLICK_THRESHOLD_CONFIG);
-    minDeviationThreshold = getDoubleConfigValue(MIN_DEVIATION_THRESHOLD_CONFIG);
-    jitterThreshold = getIntegerConfigValue(JITTER_THRESHOLD_CONFIG);
-    smallWindow = getIntegerConfigValue(SMALL_WINDOW_CONFIG);
-    identicalDelayThreshold = getIntegerConfigValue(IDENTICAL_DELAY_THRESHOLD_CONFIG);
+  private void setConfigValues() {
+    clickThreshold = getCheckConfiguration().getConfigOption(CLICK_THRESHOLD_CONFIG).asInteger();
+    minDeviationThreshold =
+        getCheckConfiguration().getConfigOption(MIN_DEVIATION_THRESHOLD_CONFIG).asDouble();
+    jitterThreshold = getCheckConfiguration().getConfigOption(JITTER_THRESHOLD_CONFIG).asInteger();
+    smallWindow = getCheckConfiguration().getConfigOption(SMALL_WINDOW_CONFIG).asInteger();
+    identicalDelayThreshold =
+        getCheckConfiguration().getConfigOption(IDENTICAL_DELAY_THRESHOLD_CONFIG).asInteger();
   }
 
   private boolean isInvalidClickData(CPS cps) {
@@ -168,14 +169,6 @@ public class ClickPatternConsistencyCheck extends Check {
     }
 
     return Math.sqrt(sumSquaredDeviations / (amount - 1));
-  }
-
-  private int getIntegerConfigValue(String key) {
-    return getCheckConfiguration().getConfigOption(key).asInteger();
-  }
-
-  private double getDoubleConfigValue(String key) {
-    return getCheckConfiguration().getConfigOption(key).asDouble();
   }
 
   private void logPatternIssue(String message, Object... args) {

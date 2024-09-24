@@ -37,7 +37,10 @@ public class AFKClickingCheck extends Check {
   @Override
   protected void onLoad() {
     setupDefaults();
+    setConfigValue();
+  }
 
+  private void setConfigValue() {
     afkAfterSeconds = getCheckConfiguration().getConfigOption(AFK_AFTER_SECONDS_CONFIG).asInteger();
   }
 
@@ -46,29 +49,33 @@ public class AFKClickingCheck extends Check {
 
   @Override
   public boolean check(Player player) {
-    List<Location> locations = playerLocations.get(player.getUniqueId());
+    List<Location> locations =
+        playerLocations.computeIfAbsent(
+            player.getUniqueId(), k -> new ArrayList<>(List.of(player.getLocation())));
+    updateLocations(player, locations);
+    updateAfkMap(player, locations);
+    return isAfkClicking(locations) && isClicking(player, afkAfterSeconds);
+  }
 
-    if (locations == null) {
-      playerLocations.put(player.getUniqueId(), new ArrayList<>(List.of(player.getLocation())));
-      return false;
-    }
-
+  private void updateLocations(Player player, List<Location> locations) {
     if (locations.size() < afkAfterSeconds) {
       locations.add(player.getLocation());
-      return false;
     } else if (locations.size() > afkAfterSeconds) {
       locations.removeFirst();
     }
+  }
 
-    playerLocations.remove(player.getUniqueId());
-
+  private void updateAfkMap(Player player, List<Location> locations) {
+    if (!isEnoughDataCollected(locations)) return;
     if (isAfkClicking(locations)) {
       afkMap.put(player.getUniqueId(), System.currentTimeMillis());
     } else {
       afkMap.remove(player.getUniqueId());
     }
+  }
 
-    return isAfkClicking(locations) && isClicking(player, afkAfterSeconds);
+  private boolean isEnoughDataCollected(List<Location> locations) {
+    return locations.size() >= afkAfterSeconds;
   }
 
   private boolean isAfkClicking(List<Location> locations) {

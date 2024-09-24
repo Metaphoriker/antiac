@@ -42,7 +42,6 @@ public class LogEntryRepositoryImpl implements LogEntryRepository {
         }
       }
     } catch (Exception e) {
-      // Rollback the transaction in case of other exceptions
       if (transaction != null && transaction.getStatus().canRollback()) {
         try {
           transaction.rollback();
@@ -53,7 +52,6 @@ public class LogEntryRepositoryImpl implements LogEntryRepository {
       log.error("Failed to save log entry", e);
     }
   }
-
 
   @Override
   public LogEntry findById(long id) {

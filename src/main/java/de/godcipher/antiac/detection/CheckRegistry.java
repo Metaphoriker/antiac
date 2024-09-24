@@ -70,6 +70,10 @@ public class CheckRegistry {
 
   private void handleViolation(Player player, Check check) {
     violationTracker.addViolation(player.getUniqueId());
+    flagPlayerWhenViolationsExceeded(player, check);
+  }
+
+  private void flagPlayerWhenViolationsExceeded(Player player, Check check) {
     if (violationTracker.getViolationCount(player.getUniqueId()) >= getMaxViolations()) {
       violationTracker.resetViolation(player.getUniqueId());
       check.onFlag(player);

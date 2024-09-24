@@ -26,10 +26,8 @@ public abstract class Check {
   protected Check(ClickTracker clickTracker) {
     this.name = this.getClass().getSimpleName();
     this.clickTracker = clickTracker;
-
     this.checkConfiguration = new CheckConfiguration(name);
     this.playerFlaggingService = new PlayerFlaggingService(clickTracker, this);
-
     this.activated = checkConfiguration.isActivated();
   }
 
@@ -38,8 +36,11 @@ public abstract class Check {
 
   public void setActivated(boolean activated) {
     this.activated = activated;
-    checkConfiguration.setConfigOption(
-        "activated", new ConfigurationOption<>(activated, getComment("activated")));
+    updateConfigurationOption("activated", activated);
+  }
+
+  protected void updateConfigurationOption(String key, boolean value) {
+    checkConfiguration.setConfigOption(key, new ConfigurationOption<>(value, getComment(key)));
   }
 
   private String getComment(String key) {
@@ -47,25 +48,35 @@ public abstract class Check {
   }
 
   void load() {
+    if (canLoad()) {
+      loaded = true;
+      onLoad();
+      checkConfiguration.loadConfig();
+    }
+  }
+
+  private boolean canLoad() {
     if (isLoaded() || !isActivated()) {
       log.error("Failed loading {}", name);
-      return;
+      return false;
     }
-
-    loaded = true;
-    onLoad();
-    checkConfiguration.loadConfig();
+    return true;
   }
 
   void unload() {
+    if (canUnload()) {
+      loaded = false;
+      onUnload();
+      checkConfiguration.saveConfiguration();
+    }
+  }
+
+  private boolean canUnload() {
     if (!isLoaded()) {
       log.error("Failed unloading {}", name);
-      return;
+      return false;
     }
-
-    loaded = false;
-    onUnload();
-    checkConfiguration.saveConfiguration();
+    return true;
   }
 
   protected List<CPS> trimList(List<CPS> set, int size) {

@@ -138,10 +138,8 @@ public class AntiACCommand extends BaseCommand {
         SUCCESS_TITLE,
         Messages.getString("command.checks.listing"));
 
-    // Space above the header
     player.spigot().sendMessage(new TextComponent(" "));
 
-    // Header
     TextComponent header = createHeader("⬢ AntiAC Checks ⬢");
     player.spigot().sendMessage(header);
 
@@ -151,7 +149,6 @@ public class AntiACCommand extends BaseCommand {
       player.spigot().sendMessage(message);
     }
 
-    // Footer
     TextComponent footer = createFooter();
     player.spigot().sendMessage(footer);
   }

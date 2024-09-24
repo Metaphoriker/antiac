@@ -2,38 +2,51 @@ package de.godcipher.antiac.hibernate;
 
 import de.godcipher.antiac.AntiAC;
 import de.godcipher.antiac.config.Configuration;
-import java.util.HashMap;
-import java.util.Map;
-
 import de.godcipher.antiac.hibernate.enums.DatabaseDialect;
 import de.godcipher.antiac.hibernate.enums.DatabaseDriver;
+import java.util.HashMap;
+import java.util.Map;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Environment;
 
 public class HibernateConfig {
 
+  private static final String DATABASE_URL = "database-url";
+  private static final String DATABASE_USERNAME = "database-username";
+  private static final String DATABASE_PASSWORD = "database-password";
+  private static final String DATABASE_DRIVER = "database-driver";
+  private static final String DATABASE_DIALECT = "database-dialect";
+
   public static StandardServiceRegistry getHibernateConfiguration() {
     Configuration config = AntiAC.getInstance().getConfiguration();
-    String url = config.getConfigOption("database-url").asString();
-    String user = config.getConfigOption("database-username").asString();
-    String password = config.getConfigOption("database-password").asString();
-    String driver = config.getConfigOption("database-driver").asString();
-    String dialect = config.getConfigOption("database-dialect").asString();
+    Map<String, Object> settings = getHibernateSettings(config);
+    return buildServiceRegistry(settings);
+  }
 
-    String driverName = DatabaseDriver.valueOf(driver.toUpperCase()).getDriverClass();
-    String dialectName = DatabaseDialect.valueOf(dialect.toUpperCase()).getDialectClass();
-
+  private static Map<String, Object> getHibernateSettings(Configuration config) {
     Map<String, Object> settings = new HashMap<>();
-    settings.put(Environment.DRIVER, driverName);
-    settings.put(Environment.DIALECT, dialectName);
-    settings.put(Environment.URL, url);
-    settings.put(Environment.USER, user);
-    settings.put(Environment.PASS, password);
+    settings.put(Environment.DRIVER, getDriverClass(config));
+    settings.put(Environment.DIALECT, getDialectClass(config));
+    settings.put(Environment.URL, config.getConfigOption(DATABASE_URL).asString());
+    settings.put(Environment.USER, config.getConfigOption(DATABASE_USERNAME).asString());
+    settings.put(Environment.PASS, config.getConfigOption(DATABASE_PASSWORD).asString());
+    return settings;
+  }
 
+  private static String getDriverClass(Configuration config) {
+    String driver = config.getConfigOption(DATABASE_DRIVER).asString();
+    return DatabaseDriver.valueOf(driver.toUpperCase()).getDriverClass();
+  }
+
+  private static String getDialectClass(Configuration config) {
+    String dialect = config.getConfigOption(DATABASE_DIALECT).asString();
+    return DatabaseDialect.valueOf(dialect.toUpperCase()).getDialectClass();
+  }
+
+  private static StandardServiceRegistry buildServiceRegistry(Map<String, Object> settings) {
     StandardServiceRegistryBuilder registryBuilder = new StandardServiceRegistryBuilder();
     registryBuilder.applySettings(settings);
-
     return registryBuilder.build();
   }
 }

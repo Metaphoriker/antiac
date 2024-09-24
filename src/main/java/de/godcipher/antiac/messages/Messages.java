@@ -25,20 +25,30 @@ public class Messages {
     File file = new File(propertiesFile);
     if (!file.exists()) {
       try {
-        file.getParentFile().mkdirs();
-        file.createNewFile();
-        try (InputStream defaultPropertiesStream =
-                Messages.class.getResourceAsStream("/messages.properties");
-            FileOutputStream out = new FileOutputStream(file)) {
-          if (defaultPropertiesStream != null) {
-            PROPERTIES.load(defaultPropertiesStream);
-            PROPERTIES.store(out, null);
-          }
-        }
+        ensureFile(file);
+        loadMessagePropertiesFromResources(PROPERTIES, file);
       } catch (IOException e) {
         log.error("Could not create properties file: {}", propertiesFile, e);
       }
     }
+  }
+
+  private static void loadMessagePropertiesFromResources(Properties properties, File file) {
+    try (InputStream defaultPropertiesStream =
+            Messages.class.getResourceAsStream("/messages.properties");
+        FileOutputStream out = new FileOutputStream(file)) {
+      if (defaultPropertiesStream != null) {
+        PROPERTIES.load(defaultPropertiesStream);
+        PROPERTIES.store(out, null);
+      }
+    } catch (IOException e) {
+      log.error("Could not load messages.properties", e);
+    }
+  }
+
+  private static void ensureFile(File file) throws IOException {
+    file.getParentFile().mkdirs();
+    file.createNewFile();
   }
 
   private static void loadProperties() {
@@ -62,22 +72,15 @@ public class Messages {
   }
 
   public static void migrate() {
+    File file = new File(propertiesFile);
     Properties newProperties = new Properties();
-    try (InputStream defaultPropertiesStream =
-        Messages.class.getResourceAsStream("/messages.properties")) {
-      if (defaultPropertiesStream != null) {
-        newProperties.load(defaultPropertiesStream);
-      }
-    } catch (IOException e) {
-      log.error("Could not load default properties file", e);
-    }
-
-    // Remove keys that are not in the new properties
-    PROPERTIES.keySet().removeIf(key -> !newProperties.containsKey(key));
-
-    // Add or update keys from the new properties
-    newProperties.forEach((key, value) -> PROPERTIES.putIfAbsent(key, value));
-
+    loadMessagePropertiesFromResources(newProperties, file);
+    migrateProperties(newProperties);
     saveProperties();
+  }
+
+  private static void migrateProperties(Properties newProperties) {
+    PROPERTIES.keySet().removeIf(key -> !newProperties.containsKey(key));
+    newProperties.forEach((key, value) -> PROPERTIES.putIfAbsent(key, value));
   }
 }

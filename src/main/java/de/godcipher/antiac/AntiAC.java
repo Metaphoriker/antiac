@@ -38,7 +38,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 @Slf4j
@@ -140,9 +139,7 @@ public final class AntiAC extends JavaPlugin {
   private void loadConfig() {
     getConfig().options().copyDefaults(true);
     saveDefaultConfig();
-
     configuration.setupFile("config.yml", null);
-
     loadConfigValues();
   }
 
@@ -225,9 +222,7 @@ public final class AntiAC extends JavaPlugin {
         .getScheduler()
         .runTaskTimerAsynchronously(
             this, new CheckExecutionTask(clickTracker, checkRegistry, tpsChecker), 0, 20);
-
-    // TODO: async needed?
-    getServer()
+    getServer() // TODO: async needed?
         .getScheduler()
         .runTaskTimerAsynchronously(
             this, new ClearViolationsTask(violationTracker), 0, 20 * 60); // 1 minute
@@ -264,12 +259,6 @@ public final class AntiAC extends JavaPlugin {
 
   private void registerPacketListener() {
     EventManager eventManager = PacketEvents.getAPI().getEventManager();
-    /* TODO: packets are thrown multiple times at once, therefore false positives
-       eventManager.registerListener(
-           new PlayerInteractWithBlockPacketListener(clickTracker), PacketListenerPriority.NORMAL);
-       eventManager.registerListener(
-               new PlayerDiggingPacketListener(clickTracker), PacketListenerPriority.NORMAL);
-    */
     eventManager.registerListener(
         new PlayerAttackEntityPacketListener(clickTracker), PacketListenerPriority.NORMAL);
   }
