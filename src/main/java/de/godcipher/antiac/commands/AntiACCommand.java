@@ -12,7 +12,7 @@ import de.godcipher.antiac.hibernate.entity.LogEntry;
 import de.godcipher.antiac.hibernate.repository.LogEntryRepository;
 import de.godcipher.antiac.messages.Colors;
 import de.godcipher.antiac.messages.Messages;
-import de.godcipher.antiac.utils.PaginatedList;
+import de.godcipher.antiac.utils.ListPaginator;
 import de.godcipher.comet.Configuration;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -289,11 +289,11 @@ public class AntiACCommand extends BaseCommand {
   }
 
   private void sendLogs(Player player, int page) {
-    PaginatedList<LogEntry> logEntryPaginatedList = new PaginatedList<>(5);
-    logEntryPaginatedList.addAll(logEntryRepository.findAll());
-    int totalPages = logEntryPaginatedList.getTotalPages();
+    ListPaginator<LogEntry> logEntryListPaginator = new ListPaginator<>(5);
+    logEntryListPaginator.addAll(logEntryRepository.findAll());
+    int totalPages = logEntryListPaginator.getTotalPages();
 
-    for (LogEntry log : logEntryPaginatedList.getPage(page)) {
+    for (LogEntry log : logEntryListPaginator.getPage(page)) {
       TextComponent message = createLogMessage(log);
       player.spigot().sendMessage(message);
     }
