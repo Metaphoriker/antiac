@@ -4,13 +4,11 @@ import java.util.Collections;
 import java.util.List;
 import org.jetbrains.annotations.NotNull;
 
-/**
- * A paginator for handling paginated views of a list of items.
- */
-public class ListPaginator {
+/** A paginator for handling paginated views of a list of items. */
+public class ListPaginator<T> {
 
   /** List of items to paginate through. */
-  private final List<?> items;
+  private final List<T> items;
 
   /** The maximum number of items per page. */
   private final int pageSize;
@@ -22,7 +20,7 @@ public class ListPaginator {
    * @param pageSize the number of items per page; must be greater than zero
    * @throws IllegalArgumentException if pageSize is less than or equal to zero
    */
-  public ListPaginator(List<?> items, int pageSize) {
+  public ListPaginator(List<T> items, int pageSize) {
     validatePageSize(pageSize);
     this.items = items;
     this.pageSize = pageSize;
@@ -35,7 +33,7 @@ public class ListPaginator {
    * @return a list of items for the specified page, or an empty list if the page is out of range
    * @throws IllegalArgumentException if pageNumber is negative
    */
-  public List<?> getPage(int pageNumber) {
+  public List<T> getPage(int pageNumber) {
     validatePageNumber(pageNumber);
     int fromIndex = pageNumber * pageSize;
     int toIndex = Math.min(fromIndex + pageSize, items.size());
@@ -49,9 +47,9 @@ public class ListPaginator {
    * @param toIndex the ending index (exclusive)
    * @return a list of items within the range, or an empty list if fromIndex is out of range
    */
-  private @NotNull List<?> getItemsInRange(int fromIndex, int toIndex) {
+  private @NotNull List<T> getItemsInRange(int fromIndex, int toIndex) {
     if (fromIndex >= items.size()) {
-      return Collections.EMPTY_LIST; // Immutable empty list
+      return Collections.emptyList(); // Immutable empty list
     }
     return items.subList(fromIndex, toIndex);
   }
