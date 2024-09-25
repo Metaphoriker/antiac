@@ -288,16 +288,47 @@ public class AntiACCommand extends BaseCommand {
     return footer;
   }
 
+  /**
+   * Sends a paginated list of logs to the player.
+   *
+   * @param player the player to send the logs to
+   * @param page the page number to display (zero-based index)
+   */
   private void sendLogs(Player player, int page) {
-    ListPaginator<LogEntry> logEntryListPaginator =
-        new ListPaginator<>(logEntryRepository.findAll(), 5);
-    int totalPages = logEntryListPaginator.getTotalPages();
+    ListPaginator<LogEntry> paginator = createPaginator();
+    int totalPages = paginator.getTotalPages();
 
-    for (LogEntry log : logEntryListPaginator.getPage(page)) {
-      TextComponent message = createLogMessage(log);
-      player.spigot().sendMessage(message);
-    }
+    sendLogEntries(player, paginator.getPage(page));
+    sendFooter(player, page, totalPages);
+  }
 
+  /**
+   * Creates a paginator for log entries with a page size of 5.
+   *
+   * @return the paginator for log entries
+   */
+  private ListPaginator<LogEntry> createPaginator() {
+    return new ListPaginator<>(logEntryRepository.findAll(), 5);
+  }
+
+  /**
+   * Sends the log entries to the player.
+   *
+   * @param player the player to send the logs to
+   * @param logs the list of log entries to send
+   */
+  private void sendLogEntries(Player player, List<LogEntry> logs) {
+    logs.forEach(log -> player.spigot().sendMessage(createLogMessage(log)));
+  }
+
+  /**
+   * Sends the footer with page navigation information.
+   *
+   * @param player the player to send the footer to
+   * @param page the current page number
+   * @param totalPages the total number of pages
+   */
+  private void sendFooter(Player player, int page, int totalPages) {
     TextComponent footer = createLogsFooter(page, totalPages);
     player.spigot().sendMessage(footer);
   }
