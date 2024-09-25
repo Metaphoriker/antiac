@@ -161,5 +161,10 @@
             <artifactId>comet</artifactId>
             <version>1.0.2</version>
         </dependency>
+        <dependency>
+            <groupId>com.github.godcipher</groupId>
+            <artifactId>gutil</artifactId>
+            <version>1.0</version>
+        </dependency>
     </dependencies>
 </project>

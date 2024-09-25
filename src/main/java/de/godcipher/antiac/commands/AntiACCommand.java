@@ -12,8 +12,8 @@ import de.godcipher.antiac.hibernate.entity.LogEntry;
 import de.godcipher.antiac.hibernate.repository.LogEntryRepository;
 import de.godcipher.antiac.messages.Colors;
 import de.godcipher.antiac.messages.Messages;
-import de.godcipher.antiac.utils.ListPaginator;
 import de.godcipher.comet.Configuration;
+import de.godcipher.pagination.ListPaginator;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,6 +33,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 @CommandAlias("antiac")
 @Slf4j
 public class AntiACCommand extends BaseCommand {
+
+  private static final int LOG_ENTRY_LIST_SIZE = 5;
 
   private static final String ERROR_TITLE = "Error";
   private static final String SUCCESS_TITLE = "✔";
@@ -303,12 +305,12 @@ public class AntiACCommand extends BaseCommand {
   }
 
   /**
-   * Creates a paginator for log entries with a page size of 5.
+   * Creates a paginator for log entries with a page size of {@value LOG_ENTRY_LIST_SIZE}.
    *
    * @return the paginator for log entries
    */
   private ListPaginator<LogEntry> createPaginator() {
-    return new ListPaginator<>(logEntryRepository.findAll(), 5);
+    return new ListPaginator<>(logEntryRepository.findAll(), LOG_ENTRY_LIST_SIZE);
   }
 
   /**
