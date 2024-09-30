@@ -4,7 +4,7 @@ import de.godcipher.antiac.click.CPS;
 import de.godcipher.antiac.click.Click;
 import de.godcipher.antiac.click.ClickTracker;
 import de.godcipher.antiac.detection.Check;
-import de.godcipher.comet.ConfigurationOption;
+import de.godcipher.antiac.detection.checks.configs.ScaledCPSCheckConfig;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.bukkit.entity.Player;
@@ -15,31 +15,11 @@ import org.bukkit.entity.Player;
  * the CPS, they are flagged as suspicious.
  */
 @Slf4j
-public class ScaledCPSCheck extends Check {
-
-  private static final String TOTAL_DELAY_MS_CONFIG = "total-delay-ms";
-  private static final String MIN_CLICKS_CONFIG = "min-clicks";
-
-  private int totalDelayMs; // Total delay in milliseconds expected for the 0-100 clicks
-  private int minClicks; // Minimum number of clicks to analyze
+public class ScaledCPSCheck extends Check<ScaledCPSCheckConfig> {
 
   public ScaledCPSCheck(ClickTracker clickTracker) {
-    super(clickTracker);
+    super(clickTracker, new ScaledCPSCheckConfig());
   }
-
-  @Override
-  protected void onLoad() {
-    setupDefaults();
-    setConfigValues();
-  }
-
-  private void setConfigValues() {
-    totalDelayMs = (int) getCheckConfiguration().getConfigOption(TOTAL_DELAY_MS_CONFIG).getValue();
-    minClicks = (int) getCheckConfiguration().getConfigOption(MIN_CLICKS_CONFIG).getValue();
-  }
-
-  @Override
-  protected void onUnload() {}
 
   @Override
   public boolean check(Player player) {
@@ -63,7 +43,7 @@ public class ScaledCPSCheck extends Check {
   }
 
   private boolean isInvalidClickData(CPS cps) {
-    return cps.isEmpty() || cps.getClicks().size() < minClicks;
+    return cps.isEmpty() || cps.getClicks().size() < getConfiguration().getMinClicks();
   }
 
   /**
@@ -92,19 +72,6 @@ public class ScaledCPSCheck extends Check {
    */
   private double scaleCPSDelay(int cps) {
     double scalingFactor = (double) cps / 100;
-    return scalingFactor * totalDelayMs;
-  }
-
-  private void setupDefaults() {
-    getCheckConfiguration()
-        .setConfigOption(
-            TOTAL_DELAY_MS_CONFIG,
-            new ConfigurationOption<>(2500, "The total delay in milliseconds for 0-100 clicks."));
-    getCheckConfiguration()
-        .setConfigOption(
-            MIN_CLICKS_CONFIG,
-            new ConfigurationOption<>(
-                10, "The minimum number of clicks required to perform the check."));
-    saveConfiguration();
+    return scalingFactor * getConfiguration().getMaxExpectedClickDelayMs();
   }
 }

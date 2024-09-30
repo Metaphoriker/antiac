@@ -9,33 +9,20 @@ import com.jeff_media.updatechecker.UpdateCheckSource;
 import com.jeff_media.updatechecker.UpdateChecker;
 import de.godcipher.antiac.bstats.BStatsHandler;
 import de.godcipher.antiac.click.ClickTracker;
-import de.godcipher.antiac.click.ClickType;
 import de.godcipher.antiac.commands.AntiACCommand;
 import de.godcipher.antiac.detection.Check;
 import de.godcipher.antiac.detection.CheckRegistry;
-import de.godcipher.antiac.detection.checks.AFKClickingCheck;
-import de.godcipher.antiac.detection.checks.ClickLimitCheck;
-import de.godcipher.antiac.detection.checks.ClickPatternConsistencyCheck;
-import de.godcipher.antiac.detection.checks.DoubleClickCheck;
-import de.godcipher.antiac.detection.checks.MomentumCheck;
-import de.godcipher.antiac.detection.checks.ScaledCPSCheck;
+import de.godcipher.antiac.detection.checks.*;
 import de.godcipher.antiac.detection.reliability.TPSChecker;
 import de.godcipher.antiac.detection.violation.ViolationTracker;
 import de.godcipher.antiac.hibernate.HibernateUtil;
-import de.godcipher.antiac.hibernate.enums.DatabaseDialect;
-import de.godcipher.antiac.hibernate.enums.DatabaseDriver;
 import de.godcipher.antiac.hibernate.repository.impl.LogEntryRepositoryImpl;
 import de.godcipher.antiac.listener.bukkit.PlayerQuitListener;
 import de.godcipher.antiac.listener.protocol.PlayerAttackEntityPacketListener;
 import de.godcipher.antiac.messages.Messages;
 import de.godcipher.antiac.tasks.CheckExecutionTask;
 import de.godcipher.antiac.tasks.ClearViolationsTask;
-import de.godcipher.comet.Configuration;
-import de.godcipher.comet.ConfigurationOption;
 import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder;
-import java.io.File;
-import java.util.Arrays;
-import java.util.List;
 import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -48,18 +35,15 @@ public final class AntiAC extends JavaPlugin {
 
   @Getter private static AntiAC instance;
 
-  @Getter private final Configuration configuration = new Configuration();
+  @Getter private final AntiACConfig configuration = new AntiACConfig(); // Use AntiACConfig
 
-  @Getter
-  private final LogEntryRepositoryImpl logEntryRepository =
-      new LogEntryRepositoryImpl(); // +1 TODO: use interface
+  @Getter private final LogEntryRepositoryImpl logEntryRepository = new LogEntryRepositoryImpl();
 
   private final TPSChecker tpsChecker = new TPSChecker(configuration);
   @Getter private final ClickTracker clickTracker = new ClickTracker(configuration);
   @Getter private final ViolationTracker violationTracker = new ViolationTracker();
 
-  @Getter
-  private final CheckRegistry checkRegistry = new CheckRegistry(violationTracker, configuration);
+  @Getter private final CheckRegistry checkRegistry = new CheckRegistry(violationTracker, configuration);
 
   @Override
   public void onLoad() {
@@ -85,7 +69,7 @@ public final class AntiAC extends JavaPlugin {
   }
 
   private void initialize() {
-    loadConfig();
+    configuration.initialize();
     registerChecks();
     setupMessages();
     startTPSChecker();
@@ -108,8 +92,7 @@ public final class AntiAC extends JavaPlugin {
   }
 
   private void setupHibernate() {
-    boolean logging = (boolean) getConfiguration().getConfigOption("logging").getValue();
-    if (logging) HibernateUtil.setupHibernate();
+    if (configuration.isLogging()) HibernateUtil.setupHibernate();
   }
 
   private void setupMessages() {
@@ -135,74 +118,6 @@ public final class AntiAC extends JavaPlugin {
                     .collect(Collectors.toList()));
   }
 
-  private void loadConfig() {
-    File configFile = new File(getDataFolder(), "config.yml");
-    configuration.setupFile(configFile); // Setup configuration using your library
-    loadConfigValues();
-  }
-
-  public void reload() {
-    configuration.reloadConfig();
-    loadConfigValues();
-    Messages.setup();
-    reloadChecks();
-    printRegisteredChecksAmount();
-  }
-
-  private void reloadChecks() {
-    clearChecks();
-    registerChecks();
-  }
-
-  private void loadConfigValues() {
-    configuration.setConfigOption(
-        "cps-storage-limit",
-        new ConfigurationOption<>(30, "Stores the last x CPS internally to process"));
-    List<String> clickTypes =
-        Arrays.stream(ClickType.values()).map(Enum::name).toList();
-    configuration.setConfigOption(
-        "allowed-clicktypes",
-        ConfigurationOption.ofStringList(
-            clickTypes, "What click types should AntiAC track? " + clickTypes));
-    configuration.setConfigOption(
-        "modern-feedback", new ConfigurationOption<>(true, "Enable modern feedback"));
-    configuration.setConfigOption(
-        "logging", new ConfigurationOption<>(false, "Whether to log flagged players"));
-    configuration.setConfigOption("database-url", new ConfigurationOption<>("", "Database URL"));
-    configuration.setConfigOption(
-        "database-username", new ConfigurationOption<>("", "Database username"));
-    configuration.setConfigOption(
-        "database-password", new ConfigurationOption<>("", "Database password"));
-    configuration.setConfigOption(
-        "database-driver",
-        new ConfigurationOption<>("", Arrays.toString(getOnlyEnumNames(DatabaseDriver.class))));
-    configuration.setConfigOption(
-        "database-dialect",
-        new ConfigurationOption<>("", Arrays.toString(getOnlyEnumNames(DatabaseDialect.class))));
-    configuration.setConfigOption(
-        "commands",
-        new ConfigurationOption<>(
-            List.of("kick %player%", "say %player% got flagged by %check% check!"),
-            "Commands to execute when a player gets flagged"));
-    configuration.setConfigOption(
-        "tps-protection",
-        new ConfigurationOption<>(15, "Lowest allowed TPS until the TPS protection kicks in"));
-    configuration.setConfigOption(
-        "violations", new ConfigurationOption<>(true, "Enable violation-based actions"));
-    configuration.setConfigOption(
-        "max-allowed-violations",
-        new ConfigurationOption<>(
-            8, "Maximum amount of violations allowed until the player gets flagged"));
-    configuration.setConfigOption(
-        "bedrock-players",
-        new ConfigurationOption<>(false, "Whether the server allows bedrock players"));
-    configuration.saveConfiguration();
-  }
-
-  private String[] getOnlyEnumNames(Class<? extends Enum<?>> enumClass) {
-    return Arrays.stream(enumClass.getEnumConstants()).map(Enum::name).toArray(String[]::new);
-  }
-
   private void initializeBStats() {
     BStatsHandler.init(this);
   }
@@ -220,7 +135,7 @@ public final class AntiAC extends JavaPlugin {
         .getScheduler()
         .runTaskTimerAsynchronously(
             this, new CheckExecutionTask(clickTracker, checkRegistry, tpsChecker), 0, 20);
-    getServer() // TODO: async needed?
+    getServer()
         .getScheduler()
         .runTaskTimerAsynchronously(
             this, new ClearViolationsTask(violationTracker), 0, 20 * 60); // 1 minute
@@ -233,10 +148,6 @@ public final class AntiAC extends JavaPlugin {
     checkRegistry.registerCheck(new DoubleClickCheck(clickTracker));
     checkRegistry.registerCheck(new MomentumCheck(clickTracker));
     checkRegistry.registerCheck(new ScaledCPSCheck(clickTracker));
-  }
-
-  private void clearChecks() {
-    checkRegistry.clearChecks();
   }
 
   private void registerBukkitListener() {

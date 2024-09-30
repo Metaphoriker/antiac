@@ -3,6 +3,7 @@ package de.godcipher.antiac.commands;
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
 import de.godcipher.antiac.AntiAC;
+import de.godcipher.antiac.AntiACConfig;
 import de.godcipher.antiac.click.CPS;
 import de.godcipher.antiac.click.ClickTracker;
 import de.godcipher.antiac.click.ClickType;
@@ -12,13 +13,13 @@ import de.godcipher.antiac.hibernate.entity.LogEntry;
 import de.godcipher.antiac.hibernate.repository.LogEntryRepository;
 import de.godcipher.antiac.messages.Colors;
 import de.godcipher.antiac.messages.Messages;
-import de.godcipher.comet.Configuration;
-import de.godcipher.pagination.ListPaginator;
+import de.godcipher.gutil.pagination.ListPaginator;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ChatMessageType;
@@ -32,6 +33,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 @CommandAlias("antiac")
 @Slf4j
+@RequiredArgsConstructor
 public class AntiACCommand extends BaseCommand {
 
   private static final int LOG_ENTRY_LIST_SIZE = 5;
@@ -40,21 +42,11 @@ public class AntiACCommand extends BaseCommand {
   private static final String SUCCESS_TITLE = "✔";
 
   private final Map<UUID, UUID> playerChecks = new HashMap<>();
+
   private final ClickTracker clickTracker;
   private final ViolationTracker violationTracker;
   private final LogEntryRepository logEntryRepository;
-  private final boolean modernFeedback;
-
-  public AntiACCommand(
-      ClickTracker clickTracker,
-      ViolationTracker violationTracker,
-      LogEntryRepository logEntryRepository,
-      Configuration configuration) {
-    this.clickTracker = clickTracker;
-    this.violationTracker = violationTracker;
-    this.logEntryRepository = logEntryRepository;
-    this.modernFeedback = (boolean) configuration.getConfigOption("modern-feedback").getValue();
-  }
+  private final AntiACConfig antiACConfig;
 
   @Default
   @Description("Specify a subcommand")
@@ -224,8 +216,7 @@ public class AntiACCommand extends BaseCommand {
   @CommandPermission("antiac.logs")
   @Description("List all logs")
   public void onLogs(Player player, @Optional Integer page) {
-    boolean logging =
-        (boolean) AntiAC.getInstance().getConfiguration().getConfigOption("logging").getValue();
+    boolean logging = antiACConfig.isLogging();
     if (!logging) {
       sendFeedback(
           player,
@@ -258,7 +249,7 @@ public class AntiACCommand extends BaseCommand {
         Colors.PINE_GREEN_COLOR,
         SUCCESS_TITLE,
         Messages.getString("command.reload.success"));
-    AntiAC.getInstance().reload();
+    antiACConfig.reloadConfig();
   }
 
   private TextComponent createLogsFooter(int page, int totalPages) {
@@ -357,8 +348,7 @@ public class AntiACCommand extends BaseCommand {
   }
 
   private void startCheckTask(Player player, Player target) {
-    boolean isViolationsActive =
-        (boolean) AntiAC.getInstance().getConfiguration().getConfigOption("violations").getValue();
+    boolean isViolationsActive = antiACConfig.isViolations();
 
     new BukkitRunnable() {
       int maxCPS;
@@ -409,7 +399,7 @@ public class AntiACCommand extends BaseCommand {
   }
 
   private void sendFeedback(Player player, ChatColor chatColor, String title, String subtitle) {
-    if (!modernFeedback) {
+    if (!antiACConfig.isModernFeedback()) {
       player.sendMessage(chatColor + title + " §7" + subtitle);
       return;
     }

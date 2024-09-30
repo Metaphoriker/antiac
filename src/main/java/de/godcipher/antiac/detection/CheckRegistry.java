@@ -1,7 +1,7 @@
 package de.godcipher.antiac.detection;
 
+import de.godcipher.antiac.AntiACConfig;
 import de.godcipher.antiac.detection.violation.ViolationTracker;
-import de.godcipher.comet.Configuration;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -16,7 +16,7 @@ public class CheckRegistry {
   private final Set<Check> checks = new HashSet<>();
 
   private final ViolationTracker violationTracker;
-  private final Configuration configuration;
+  private final AntiACConfig configuration;
 
   public void registerCheck(Check check) {
     checks.add(check);
@@ -65,7 +65,7 @@ public class CheckRegistry {
   }
 
   private boolean isViolationTrackingEnabled() {
-    return (Boolean) configuration.getConfigOption("violations").getValue();
+    return configuration.isViolations();
   }
 
   private void handleViolation(Player player, Check check) {
@@ -81,6 +81,6 @@ public class CheckRegistry {
   }
 
   private int getMaxViolations() {
-    return (Integer) configuration.getConfigOption("max-allowed-violations").getValue();
+    return configuration.getMaxAllowedViolations();
   }
 }

@@ -4,46 +4,31 @@ import de.godcipher.antiac.click.CPS;
 import de.godcipher.antiac.click.Click;
 import de.godcipher.antiac.click.ClickTracker;
 import de.godcipher.antiac.detection.Check;
-import de.godcipher.comet.ConfigurationOption;
+import de.godcipher.antiac.detection.checks.configs.ClickPatternConsistencyCheckConfig;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.bukkit.entity.Player;
 
+/**
+ * ClickPatternConsistencyCheck checks for irregularities in a player's click patterns by analyzing
+ * delays between clicks and detecting patterns that are too regular or suspiciously repeating.
+ */
 @Slf4j
-public class ClickPatternConsistencyCheck extends Check {
-
-  private static final String CLICK_THRESHOLD_CONFIG = "click-threshold";
-  private static final String MIN_DEVIATION_THRESHOLD_CONFIG = "min-deviation-threshold";
-  private static final String JITTER_THRESHOLD_CONFIG = "jitter-threshold";
-  private static final String SMALL_WINDOW_CONFIG = "small-window";
-  private static final String IDENTICAL_DELAY_THRESHOLD_CONFIG = "identical-delay-threshold";
-
-  private int clickThreshold;
-  private double minDeviationThreshold;
-  private int jitterThreshold;
-  private int smallWindow;
-  private int identicalDelayThreshold;
+public class ClickPatternConsistencyCheck extends Check<ClickPatternConsistencyCheckConfig> {
 
   public ClickPatternConsistencyCheck(ClickTracker clickTracker) {
-    super(clickTracker);
+    super(clickTracker, new ClickPatternConsistencyCheckConfig());
   }
-
-  @Override
-  protected void onLoad() {
-    setupDefaults();
-    setConfigValues();
-  }
-
-  @Override
-  protected void onUnload() {}
 
   @Override
   public boolean check(Player player) {
     CPS cps = clickTracker.getLatestCPS(player.getUniqueId());
     if (isInvalidClickData(cps)) return false;
 
-    double averageDelay = calculateAverageDelay(cps.getClicks(), clickThreshold);
-    double deviation = calculateStandardDeviation(cps.getClicks(), clickThreshold);
+    double averageDelay =
+        calculateAverageDelay(cps.getClicks(), getConfiguration().getClickThreshold());
+    double deviation =
+        calculateStandardDeviation(cps.getClicks(), getConfiguration().getClickThreshold());
 
     if (isClickPatternTooRegular(deviation)) {
       logPatternIssue("Click pattern too regular", deviation);
@@ -64,55 +49,19 @@ public class ClickPatternConsistencyCheck extends Check {
     return false;
   }
 
-  private void setupDefaults() {
-    getCheckConfiguration()
-        .setConfigOption(
-            CLICK_THRESHOLD_CONFIG,
-            new ConfigurationOption<>(10, "Minimum number of clicks to analyze."));
-    getCheckConfiguration()
-        .setConfigOption(
-            MIN_DEVIATION_THRESHOLD_CONFIG,
-            new ConfigurationOption<>(1.5, "Minimum deviation threshold."));
-    getCheckConfiguration()
-        .setConfigOption(
-            JITTER_THRESHOLD_CONFIG,
-            new ConfigurationOption<>(10, "Jitter threshold for click delays."));
-    getCheckConfiguration()
-        .setConfigOption(
-            SMALL_WINDOW_CONFIG,
-            new ConfigurationOption<>(5, "Small window for delay comparison."));
-    getCheckConfiguration()
-        .setConfigOption(
-            IDENTICAL_DELAY_THRESHOLD_CONFIG,
-            new ConfigurationOption<>(3, "Threshold for identical delays."));
-    saveConfiguration();
-  }
-
-  private void setConfigValues() {
-    clickThreshold =
-        (int) getCheckConfiguration().getConfigOption(CLICK_THRESHOLD_CONFIG).getValue();
-    minDeviationThreshold =
-        (double) getCheckConfiguration().getConfigOption(MIN_DEVIATION_THRESHOLD_CONFIG).getValue();
-    jitterThreshold =
-        (int) getCheckConfiguration().getConfigOption(JITTER_THRESHOLD_CONFIG).getValue();
-    smallWindow = (int) getCheckConfiguration().getConfigOption(SMALL_WINDOW_CONFIG).getValue();
-    identicalDelayThreshold =
-        (int) getCheckConfiguration().getConfigOption(IDENTICAL_DELAY_THRESHOLD_CONFIG).getValue();
-  }
-
   private boolean isInvalidClickData(CPS cps) {
-    return cps.isEmpty() || cps.getClicks().size() < clickThreshold;
+    return cps.isEmpty() || cps.getClicks().size() < getConfiguration().getClickThreshold();
   }
 
   private boolean isClickPatternTooRegular(double deviation) {
-    return deviation < minDeviationThreshold;
+    return deviation < getConfiguration().getMinDeviationThreshold();
   }
 
   private boolean isClickPatternSuspicious(List<Click> clicks, double averageDelay) {
     boolean hasJitter = false;
     int identicalDelaysCount = 0;
 
-    for (int i = 0; i < clickThreshold; i++) {
+    for (int i = 0; i < getConfiguration().getClickThreshold(); i++) {
       Click currentClick = clicks.get(clicks.size() - 1 - i);
       double currentDelay = currentClick.getDelay();
 
@@ -128,25 +77,29 @@ public class ClickPatternConsistencyCheck extends Check {
       }
     }
 
-    return !hasJitter || identicalDelaysCount > identicalDelayThreshold;
+    return !hasJitter || identicalDelaysCount > getConfiguration().getIdenticalDelayThreshold();
   }
 
   private boolean isDelaySimilarToAverage(double delay, double averageDelay) {
-    return Math.abs(delay - averageDelay) < smallWindow;
+    return Math.abs(delay - averageDelay) < getConfiguration().getSmallWindow();
   }
 
   private boolean isJitterDetected(Click currentClick, Click previousClick) {
-    return Math.abs(currentClick.getDelay() - previousClick.getDelay()) > jitterThreshold;
+    return Math.abs(currentClick.getDelay() - previousClick.getDelay())
+        > getConfiguration().getJitterThreshold();
   }
 
   private boolean isRepeatingPattern(List<Click> clicks) {
-    if (clicks.size() < clickThreshold) return false;
+    if (clicks.size() < getConfiguration().getClickThreshold()) return false;
 
-    for (int i = 0; i < clickThreshold / 2; i++) {
+    for (int i = 0; i < getConfiguration().getClickThreshold() / 2; i++) {
       double delay1 = clicks.get(clicks.size() - 1 - i).getDelay();
-      double delay2 = clicks.get(clicks.size() - 1 - (i + clickThreshold / 2)).getDelay();
+      double delay2 =
+          clicks
+              .get(clicks.size() - 1 - (i + getConfiguration().getClickThreshold() / 2))
+              .getDelay();
 
-      if (Math.abs(delay1 - delay2) > smallWindow) {
+      if (Math.abs(delay1 - delay2) > getConfiguration().getSmallWindow()) {
         return false;
       }
     }

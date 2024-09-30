@@ -1,6 +1,6 @@
 package de.godcipher.antiac.click;
 
-import de.godcipher.comet.Configuration;
+import de.godcipher.antiac.AntiACConfig;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 public class ClickTracker {
 
   private final Map<UUID, List<CPS>> playerClicksMap = new HashMap<>();
-  private final Configuration configuration;
+  private final AntiACConfig configuration;
 
   public synchronized void addClick(UUID player, Click click) {
     ensurePlayerExists(player);
@@ -43,7 +43,7 @@ public class ClickTracker {
   }
 
   public void removeLastCPSIfExceedsLimit() {
-    int maxCPS = (Integer) configuration.getConfigOption("cps-storage-limit").getValue();
+    int maxCPS = configuration.getCpsStorageLimit();
     playerClicksMap
         .values()
         .forEach(

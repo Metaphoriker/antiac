@@ -1,7 +1,7 @@
 package de.godcipher.antiac.detection.reliability;
 
 import de.godcipher.antiac.AntiAC;
-import de.godcipher.comet.Configuration;
+import de.godcipher.antiac.AntiACConfig;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -9,7 +9,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 @RequiredArgsConstructor
 public class TPSChecker {
 
-  private final Configuration configuration;
+  private final AntiACConfig configuration;
 
   @Getter private double tps;
 
@@ -19,7 +19,7 @@ public class TPSChecker {
   private double lastFinish;
 
   public void start() {
-    reliableTpsThreshold = (int) configuration.getConfigOption("tps-protection").getValue();
+    reliableTpsThreshold = configuration.getTpsProtection();
     schedule();
   }
 

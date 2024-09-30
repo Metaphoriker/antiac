@@ -40,9 +40,7 @@ public class PlayerFlaggingService {
   }
 
   public void handleFlag(Player player) {
-    List<String> commands =
-        (List<String>)
-            AntiAC.getInstance().getConfiguration().getConfigOption("commands").getValue();
+    List<String> commands = AntiAC.getInstance().getConfiguration().getCommands();
     if (commands.isEmpty()) return;
     dispatchCommands(player, commands);
   }
@@ -65,7 +63,7 @@ public class PlayerFlaggingService {
   }
 
   private boolean isLoggingActivated() {
-    return (boolean) AntiAC.getInstance().getConfiguration().getConfigOption("logging").getValue();
+    return AntiAC.getInstance().getConfiguration().isLogging();
   }
 
   private void logFlag(Player player) {

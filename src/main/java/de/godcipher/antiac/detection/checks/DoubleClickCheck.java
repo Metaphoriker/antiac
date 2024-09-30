@@ -4,7 +4,7 @@ import de.godcipher.antiac.click.CPS;
 import de.godcipher.antiac.click.Click;
 import de.godcipher.antiac.click.ClickTracker;
 import de.godcipher.antiac.detection.Check;
-import de.godcipher.comet.ConfigurationOption;
+import de.godcipher.antiac.detection.checks.configs.DoubleClickCheckConfig;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.bukkit.entity.Player;
@@ -14,33 +14,11 @@ import org.bukkit.entity.Player;
  * time.
  */
 @Slf4j
-public class DoubleClickCheck extends Check {
-
-  private static final String REQUIRED_CONSECUTIVE_SUSPICIOUS_CLICKS_CONFIG =
-      "required-consecutive-suspicious-clicks";
-
-  private int requiredConsecutiveSuspiciousClicks = 3;
+public class DoubleClickCheck extends Check<DoubleClickCheckConfig> {
 
   public DoubleClickCheck(ClickTracker clickTracker) {
-    super(clickTracker);
+    super(clickTracker, new DoubleClickCheckConfig());
   }
-
-  @Override
-  protected void onLoad() {
-    setupDefaults();
-    setConfigValues();
-  }
-
-  private void setConfigValues() {
-    requiredConsecutiveSuspiciousClicks =
-        (int)
-            getCheckConfiguration()
-                .getConfigOption(REQUIRED_CONSECUTIVE_SUSPICIOUS_CLICKS_CONFIG)
-                .getValue();
-  }
-
-  @Override
-  protected void onUnload() {}
 
   @Override
   public boolean check(Player player) {
@@ -52,7 +30,8 @@ public class DoubleClickCheck extends Check {
   }
 
   private boolean suspiciousClicksExceedsLimit(List<Long> clicks) {
-    return calculateConsecutiveSuspiciousClicks(clicks) >= requiredConsecutiveSuspiciousClicks;
+    return calculateConsecutiveSuspiciousClicks(clicks)
+        >= getConfiguration().getRequiredConsecutiveSuspiciousClicks();
   }
 
   private int calculateConsecutiveSuspiciousClicks(List<Long> clicks) {
@@ -68,14 +47,5 @@ public class DoubleClickCheck extends Check {
       }
     }
     return consecutiveSuspiciousClicks;
-  }
-
-  private void setupDefaults() {
-    getCheckConfiguration()
-        .setConfigOption(
-            REQUIRED_CONSECUTIVE_SUSPICIOUS_CLICKS_CONFIG,
-            new ConfigurationOption<>(
-                3, "The number of consecutive suspicious clicks required to flag"));
-    saveConfiguration();
   }
 }

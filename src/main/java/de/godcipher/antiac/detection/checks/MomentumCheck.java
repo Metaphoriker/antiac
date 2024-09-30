@@ -4,7 +4,7 @@ import de.godcipher.antiac.click.CPS;
 import de.godcipher.antiac.click.Click;
 import de.godcipher.antiac.click.ClickTracker;
 import de.godcipher.antiac.detection.Check;
-import de.godcipher.comet.ConfigurationOption;
+import de.godcipher.antiac.detection.checks.configs.MomentumCheckConfig;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -17,49 +17,26 @@ import org.bukkit.entity.Player;
  * detect potential irregularities using a rolling slope method.
  */
 @Slf4j
-public class MomentumCheck extends Check {
-
-  private static final String PERCENTAGE_THRESHOLD_CONFIG = "percentage-threshold";
-  private static final String CPS_THRESHOLD_CONFIG = "cps-threshold";
-  private static final String WINDOW_SIZE_CONFIG = "window-size";
-
-  private int CPSThreshold = -1;
-  private int percentageThreshold = -1;
-  private int windowSize = -1;
+public class MomentumCheck extends Check<MomentumCheckConfig> {
 
   public MomentumCheck(ClickTracker clickTracker) {
-    super(clickTracker);
+    super(clickTracker, new MomentumCheckConfig());
   }
-
-  @Override
-  protected void onLoad() {
-    setupDefaults();
-    setConfigValues();
-  }
-
-  private void setConfigValues() {
-    CPSThreshold = (int) getCheckConfiguration().getConfigOption(CPS_THRESHOLD_CONFIG).getValue();
-    percentageThreshold =
-        (int) getCheckConfiguration().getConfigOption(PERCENTAGE_THRESHOLD_CONFIG).getValue();
-    windowSize = (int) getCheckConfiguration().getConfigOption(WINDOW_SIZE_CONFIG).getValue();
-  }
-
-  @Override
-  protected void onUnload() {}
 
   @Override
   public boolean check(Player player) {
     List<CPS> playerCps = clickTracker.getCPSList(player.getUniqueId());
-    List<CPS> setToProcess = trimList(playerCps, CPSThreshold);
+    List<CPS> setToProcess = trimList(playerCps, getConfiguration().getCpsThreshold());
 
-    if (setToProcess.size() < CPSThreshold || windowSize < 2) {
+    if (setToProcess.size() < getConfiguration().getCpsThreshold()
+        || getConfiguration().getWindowSize() < 2) {
       return false;
     }
 
     double rollingSlope = calculateRollingSlope(setToProcess);
     double slopePercentage = Math.abs(rollingSlope * 100); // abs for negative slopes
 
-    return slopePercentage > percentageThreshold;
+    return slopePercentage > getConfiguration().getPercentageThreshold();
   }
 
   /**
@@ -75,15 +52,15 @@ public class MomentumCheck extends Check {
             .filter(cps -> !cps.isEmpty() && cps.getCPS() > 0)
             .collect(Collectors.toCollection(LinkedList::new));
 
-    if (validCps.isEmpty() || validCps.size() < windowSize) {
+    if (validCps.isEmpty() || validCps.size() < getConfiguration().getWindowSize()) {
       return 0;
     }
 
     double totalSlope = 0;
     int slopeCount = 0;
 
-    for (int i = 0; i <= validCps.size() - windowSize; i++) {
-      List<CPS> window = validCps.subList(i, i + windowSize);
+    for (int i = 0; i <= validCps.size() - getConfiguration().getWindowSize(); i++) {
+      List<CPS> window = validCps.subList(i, i + getConfiguration().getWindowSize());
       double slope = calculateSlope(window);
       totalSlope += slope;
       slopeCount++;
@@ -124,20 +101,5 @@ public class MomentumCheck extends Check {
     double averageCPS = cpsWindow.stream().mapToInt(CPS::getCPS).average().orElse(0);
 
     return (averageCPS - initialCPS) / timeSpan;
-  }
-
-  private void setupDefaults() {
-    getCheckConfiguration()
-        .setConfigOption(
-            CPS_THRESHOLD_CONFIG, new ConfigurationOption<>(20, "The number of CPS to check"));
-    getCheckConfiguration()
-        .setConfigOption(
-            PERCENTAGE_THRESHOLD_CONFIG,
-            new ConfigurationOption<>(75, "The maximum percentage slope to trigger on"));
-    getCheckConfiguration()
-        .setConfigOption(
-            WINDOW_SIZE_CONFIG,
-            new ConfigurationOption<>(5, "The window size for rolling slope calculation"));
-    saveConfiguration();
   }
 }

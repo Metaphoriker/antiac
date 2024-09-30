@@ -3,7 +3,6 @@ package de.godcipher.antiac.detection;
 import de.godcipher.antiac.click.CPS;
 import de.godcipher.antiac.click.ClickTracker;
 import de.godcipher.antiac.detection.service.PlayerFlaggingService;
-import de.godcipher.comet.ConfigurationOption;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.Getter;
@@ -11,51 +10,44 @@ import lombok.extern.slf4j.Slf4j;
 import org.bukkit.entity.Player;
 
 @Slf4j
-public abstract class Check {
+public abstract class Check<T extends CheckConfiguration> {
 
   @Getter private final String name;
-  @Getter private final CheckConfiguration checkConfiguration;
 
   private final PlayerFlaggingService playerFlaggingService;
-
   protected final ClickTracker clickTracker;
+  @Getter protected final T configuration;
 
-  @Getter private boolean activated;
   @Getter private boolean loaded;
 
-  protected Check(ClickTracker clickTracker) {
+  protected Check(ClickTracker clickTracker, T config) {
     this.name = this.getClass().getSimpleName();
     this.clickTracker = clickTracker;
-    this.checkConfiguration = new CheckConfiguration(name);
     this.playerFlaggingService = new PlayerFlaggingService(clickTracker, this);
-    this.activated = checkConfiguration.isActivated();
+    this.configuration = config;
+    this.configuration.initialize();
   }
 
-  // For cleanup when a player quits
   public void handlePlayerQuit(Player player) {}
 
+  protected void onLoad() {}
+
+  protected void onUnload() {}
+
+  public boolean isActivated() {
+    return configuration.isActivated();
+  }
+
   public void setActivated(boolean activated) {
-    this.activated = activated;
-    updateConfigurationOption("activated", activated);
-  }
-
-  protected void updateConfigurationOption(String key, boolean value) {
-    checkConfiguration.setConfigOption(key, new ConfigurationOption<>(value, getComment(key)));
-  }
-
-  protected void saveConfiguration() {
-    checkConfiguration.saveConfiguration();
-  }
-
-  private String getComment(String key) {
-    return checkConfiguration.getConfigOption(key).getComment();
+    configuration.setActivated(activated);
+    configuration.saveConfiguration();
   }
 
   void load() {
     if (canLoad()) {
       loaded = true;
       onLoad();
-      checkConfiguration.reloadConfig();
+      configuration.reloadConfig();
     }
   }
 
@@ -71,7 +63,7 @@ public abstract class Check {
     if (canUnload()) {
       loaded = false;
       onUnload();
-      checkConfiguration.saveConfiguration();
+      configuration.saveConfiguration();
     }
   }
 
@@ -91,10 +83,6 @@ public abstract class Check {
     log.debug("Player: {} - Flagged by {}", player.getName(), name);
     playerFlaggingService.flagPlayer(player);
   }
-
-  protected abstract void onLoad();
-
-  protected abstract void onUnload();
 
   public abstract boolean check(Player player);
 }

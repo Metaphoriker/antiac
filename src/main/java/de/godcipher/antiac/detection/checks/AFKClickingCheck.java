@@ -3,7 +3,7 @@ package de.godcipher.antiac.detection.checks;
 import de.godcipher.antiac.click.CPS;
 import de.godcipher.antiac.click.ClickTracker;
 import de.godcipher.antiac.detection.Check;
-import de.godcipher.comet.ConfigurationOption;
+import de.godcipher.antiac.detection.checks.configs.AFKClickingCheckConfig;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,17 +15,13 @@ import org.bukkit.entity.Player;
 
 /** AfkClickingCheck checks for players that are clicking while being AFK. */
 @Slf4j
-public class AFKClickingCheck extends Check {
-
-  private static final String AFK_AFTER_SECONDS_CONFIG = "afk-after-seconds";
+public class AFKClickingCheck extends Check<AFKClickingCheckConfig> {
 
   private final Map<UUID, List<Location>> playerLocations = new HashMap<>();
   private final Map<UUID, Long> afkMap = new HashMap<>();
 
-  private int afkAfterSeconds = 10;
-
   public AFKClickingCheck(ClickTracker clickTracker) {
-    super(clickTracker);
+    super(clickTracker, new AFKClickingCheckConfig());
   }
 
   @Override
@@ -35,33 +31,19 @@ public class AFKClickingCheck extends Check {
   }
 
   @Override
-  protected void onLoad() {
-    setupDefaults();
-    setConfigValue();
-  }
-
-  private void setConfigValue() {
-    afkAfterSeconds =
-        (int) getCheckConfiguration().getConfigOption(AFK_AFTER_SECONDS_CONFIG).getValue();
-  }
-
-  @Override
-  protected void onUnload() {}
-
-  @Override
   public boolean check(Player player) {
     List<Location> locations =
         playerLocations.computeIfAbsent(
             player.getUniqueId(), k -> new ArrayList<>(List.of(player.getLocation())));
     updateLocations(player, locations);
     updateAfkMap(player, locations);
-    return isAfkClicking(locations) && isClicking(player, afkAfterSeconds);
+    return isAfkClicking(locations) && isClicking(player);
   }
 
   private void updateLocations(Player player, List<Location> locations) {
-    if (locations.size() < afkAfterSeconds) {
+    if (locations.size() < getConfiguration().getAfkAfterSeconds()) {
       locations.add(player.getLocation());
-    } else if (locations.size() > afkAfterSeconds) {
+    } else if (locations.size() > getConfiguration().getAfkAfterSeconds()) {
       locations.removeFirst();
     }
   }
@@ -76,7 +58,7 @@ public class AFKClickingCheck extends Check {
   }
 
   private boolean isEnoughDataCollected(List<Location> locations) {
-    return locations.size() >= afkAfterSeconds;
+    return locations.size() >= getConfiguration().getAfkAfterSeconds();
   }
 
   private boolean isAfkClicking(List<Location> locations) {
@@ -84,11 +66,11 @@ public class AFKClickingCheck extends Check {
     return locations.stream().allMatch(location -> location.equals(firstLocation));
   }
 
-  private boolean isClicking(Player player, int span) {
+  private boolean isClicking(Player player) {
     List<CPS> cpsList = clickTracker.getCPSList(player.getUniqueId());
-    List<CPS> cpsToProcess = trimList(cpsList, span);
+    List<CPS> cpsToProcess = trimList(cpsList, getConfiguration().getAfkAfterSeconds());
 
-    if (cpsToProcess.size() < span) {
+    if (cpsToProcess.size() < getConfiguration().getAfkAfterSeconds()) {
       return false;
     }
 
@@ -98,13 +80,5 @@ public class AFKClickingCheck extends Check {
                 cps.getLastClick().getTime() > afkMap.get(player.getUniqueId())
                     && !cps.isEmpty()
                     && cps.getCPS() > 0);
-  }
-
-  private void setupDefaults() {
-    getCheckConfiguration()
-        .setConfigOption(
-            AFK_AFTER_SECONDS_CONFIG,
-            new ConfigurationOption<>(10, "Number of seconds before a player is considered AFK"));
-    saveConfiguration();
   }
 }
