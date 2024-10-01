@@ -18,7 +18,8 @@ public class Messages {
   public static void setup() {
     propertiesFile = AntiAC.getInstance().getDataFolder() + File.separator + "messages.properties";
     createPropertiesFileIfNotExists();
-    loadProperties();
+    loadPropertiesFromFile();
+    saveProperties();
   }
 
   private static void createPropertiesFileIfNotExists() {
@@ -26,42 +27,64 @@ public class Messages {
     if (!file.exists()) {
       try {
         ensureFile(file);
-        loadMessagePropertiesFromResources(PROPERTIES, file);
+        Properties defaultProperties = loadMessagePropertiesFromResources();
+        if (defaultProperties != null) {
+          try (FileOutputStream out = new FileOutputStream(file)) {
+            defaultProperties.store(out, null);
+            log.info("Stored properties to file: {}", file.getAbsolutePath());
+            PROPERTIES.putAll(defaultProperties);
+          }
+        }
       } catch (IOException e) {
         log.error("Could not create properties file: {}", propertiesFile, e);
       }
     }
   }
 
-  private static void loadMessagePropertiesFromResources(Properties properties, File file) {
+  private static Properties loadMessagePropertiesFromResources() {
+    Properties tempProperties = new Properties();
     try (InputStream defaultPropertiesStream =
-            Messages.class.getResourceAsStream("/messages.properties");
-        FileOutputStream out = new FileOutputStream(file)) {
-      if (defaultPropertiesStream != null) {
-        PROPERTIES.load(defaultPropertiesStream);
-        PROPERTIES.store(out, null);
+                 Messages.class.getResourceAsStream("/messages.properties")) {
+      if (defaultPropertiesStream == null) {
+        log.error("Resource /messages.properties not found.");
+        return null;
       }
+      tempProperties.load(defaultPropertiesStream);
+      log.info("Loaded properties from resource: {}", tempProperties);
     } catch (IOException e) {
       log.error("Could not load messages.properties", e);
     }
+    return tempProperties;
   }
 
   private static void ensureFile(File file) throws IOException {
-    file.getParentFile().mkdirs();
-    file.createNewFile();
+    if (!file.getParentFile().exists()) {
+      file.getParentFile().mkdirs();
+    }
+    if (file.createNewFile()) {
+      log.info("Created new properties file: {}", file.getAbsolutePath());
+    }
   }
 
-  private static void loadProperties() {
-    try (FileInputStream in = new FileInputStream(propertiesFile)) {
-      PROPERTIES.load(in);
-    } catch (IOException e) {
-      log.error("Could not load properties file: {}", propertiesFile, e);
+  private static void loadPropertiesFromFile() {
+    File file = new File(propertiesFile);
+    if (file.exists()) {
+      try (FileInputStream in = new FileInputStream(propertiesFile)) {
+        PROPERTIES.load(in);
+        log.info("Loaded properties from file: {}", PROPERTIES);
+      } catch (IOException e) {
+        log.error("Could not load properties file: {}", propertiesFile, e);
+      }
+    } else {
+      log.warn("Properties file does not exist: {}", propertiesFile);
     }
   }
 
   private static void saveProperties() {
+    log.info("Saving properties to file: {}", propertiesFile);
     try (FileOutputStream out = new FileOutputStream(propertiesFile)) {
       PROPERTIES.store(out, null);
+      log.info("Saved properties to file: {}", propertiesFile);
     } catch (IOException e) {
       log.error("Could not save properties file: {}", propertiesFile, e);
     }
@@ -72,15 +95,17 @@ public class Messages {
   }
 
   public static void migrate() {
-    File file = new File(propertiesFile);
-    Properties newProperties = new Properties();
-    loadMessagePropertiesFromResources(newProperties, file);
-    migrateProperties(newProperties);
-    saveProperties();
+    Properties newProperties = loadMessagePropertiesFromResources();
+    if (newProperties != null) {
+      migrateProperties(newProperties);
+      saveProperties();
+    }
   }
 
   private static void migrateProperties(Properties newProperties) {
-    PROPERTIES.keySet().removeIf(key -> !newProperties.containsKey(key));
-    newProperties.forEach((key, value) -> PROPERTIES.putIfAbsent(key, value));
+    PROPERTIES
+            .keySet()
+            .removeIf(key -> !newProperties.containsKey(key));
+    newProperties.forEach(PROPERTIES::putIfAbsent);
   }
 }
