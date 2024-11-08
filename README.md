@@ -1,3 +1,6 @@
+<img src="https://github.com/user-attachments/assets/f8e04de5-28fa-4015-91b4-c7e888982666" alt="Transparent" width="100" height="100" align="right" />
+<br><br>
+
 # Anti-Autoclicker V3
 
 This is the successor to [AntiAC](https://github.com/GodCipher/Anti-AutoClicker). Rebuilt from the ground up, AntiAC v3 is set to shine once again in the near future. Its arsenal has been expanded and will soon be deployed in the fight against autoclickers. Stay tuned!
